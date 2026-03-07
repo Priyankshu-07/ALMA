@@ -81,9 +81,9 @@ export default function MaternalPrediction() {
 
       // Backend returns numeric classes
       const riskMap: Record<number, RiskLevel> = {
-        0: "low",
-        1: "mid",
-        2: "high",
+        0: "high",
+        1: "low",
+        2: "mid",
       };
 
       setResult(riskMap[data.risk_level]);
