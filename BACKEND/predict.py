@@ -44,6 +44,12 @@ def predict_fhr(data):
 
     predicted_class = np.argmax(prediction, axis=1)
 
-    label = label_encoder.inverse_transform(predicted_class)
+    mapping = {
+        0: "Normal",
+        1: "Suspect",
+        2: "Pathological"
+    }
 
-    return label[0]
+    return mapping[int(predicted_class[0])]
+
+    
