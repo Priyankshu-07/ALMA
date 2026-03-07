@@ -12,6 +12,8 @@ const fields = [
   { name: "accelerations", label: "Accelerations", placeholder: "e.g. 0.003" },
   { name: "fetalMovement", label: "Fetal Movement", placeholder: "e.g. 0.0" },
   { name: "uterineContractions", label: "Uterine Contractions", placeholder: "e.g. 0.004" },
+  { name: "lightDecelerations", label: "Light Decelerations", placeholder: "e.g. 0.002" },
+  { name: "severeDecelerations", label: "Severe Decelerations", placeholder: "e.g. 0.0" }
 ];
 
 type FetalResult = "Normal" | "Suspect" | "Pathological";
@@ -66,6 +68,8 @@ export default function FetalPrediction() {
           accelerations: Number(form.accelerations),
           fetal_movement: Number(form.fetalMovement),
           uterine_contractions: Number(form.uterineContractions),
+          light_decelerations: Number(form.lightDecelerations),
+          severe_decelerations: Number(form.severeDecelerations)
         }),
       });
 

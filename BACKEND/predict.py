@@ -2,12 +2,12 @@ import joblib
 import tensorflow as tf
 import numpy as np
 
-maternal_model = joblib.load("../models/best_model.pkl")
-maternal_scaler = joblib.load("../models/scaler.pkl")
+maternal_model = joblib.load("../Models/best_model.pkl")
+maternal_scaler = joblib.load("../Models/scaler.pkl")
 
 fhr_model = tf.keras.models.load_model("../models/ann_fhr_model.keras")
-fhr_scaler = joblib.load("../models/fhr_scaler.pkl")
-label_encoder = joblib.load("../models/label_encoder.pkl")
+fhr_scaler = joblib.load("../Models/fhr_scaler.pkl")
+label_encoder = joblib.load("../Models/label_encoder.pkl")
 
 
 def predict_maternal(data):
@@ -27,22 +27,23 @@ def predict_maternal(data):
 
     return int(prediction[0])
 
-
 def predict_fhr(data):
 
     features = np.array([[
         data["baseline"],
         data["accelerations"],
         data["fetal_movement"],
-        data["uterine_contractions"]
+        data["uterine_contractions"],
+        data["light_decelerations"],
+        data["severe_decelerations"]
     ]])
 
     features = fhr_scaler.transform(features)
 
     prediction = fhr_model.predict(features)
 
-    predicted_class = np.argmax(prediction)
+    predicted_class = np.argmax(prediction, axis=1)
 
-    label = label_encoder.inverse_transform([predicted_class])
+    label = label_encoder.inverse_transform(predicted_class)
 
     return label[0]
