@@ -8,6 +8,7 @@ const pageTitles: Record<string, string> = {
   "/fetal": "Fetal Heart Rate Analysis",
   "/payment": "Pricing",
   "/about": "About",
+   "/UltrasoundPrediction": "UltrasoundPrediction",
 };
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {

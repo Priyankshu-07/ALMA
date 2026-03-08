@@ -10,6 +10,7 @@ import FetalPrediction from "./pages/FetalPrediction";
 import Payment from "./pages/Payment";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import UltrasoundPrediction from "./pages/UltrasoundPrediction";
 
 const queryClient = new QueryClient();
 
@@ -20,14 +21,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <DashboardLayout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/maternal" element={<MaternalPrediction />} />
-            <Route path="/fetal" element={<FetalPrediction />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/about" element={<About />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+         <Routes>
+  <Route path="/" element={<Index />} />
+  <Route path="/maternal" element={<MaternalPrediction />} />
+  <Route path="/fetal" element={<FetalPrediction />} />
+  <Route path="/ultrasound" element={<UltrasoundPrediction />} />
+  <Route path="/payment" element={<Payment />} />
+  <Route path="/about" element={<About />} />
+  <Route path="*" element={<NotFound />} />
+</Routes>
         </DashboardLayout>
       </BrowserRouter>
     </TooltipProvider>

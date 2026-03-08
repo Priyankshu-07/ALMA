@@ -1,4 +1,4 @@
-import { LayoutDashboard, HeartPulse, Activity, CreditCard, Info } from "lucide-react";
+import { LayoutDashboard, HeartPulse, Activity, CreditCard, Info,Scan } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/sidebar";
 
 const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Maternal Risk", url: "/maternal", icon: HeartPulse },
-  { title: "Fetal Heart Rate", url: "/fetal", icon: Activity },
-  { title: "Pricing", url: "/payment", icon: CreditCard },
-  { title: "About", url: "/about", icon: Info },
+{ title: "Dashboard", url: "/", icon: LayoutDashboard },
+{ title: "Maternal Risk", url: "/maternal", icon: HeartPulse },
+{ title: "Fetal Heart Rate", url: "/fetal", icon: Activity },
+{ title: "Ultrasound Prediction", url: "/ultrasound", icon: Scan },
+{ title: "Pricing", url: "/payment", icon: CreditCard },
+{ title: "About", url: "/about", icon: Info },
 ];
 
 export function AppSidebar() {
