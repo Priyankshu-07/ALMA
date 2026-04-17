@@ -1,146 +1,271 @@
-# 🧬 Fetal Health Analysis System
+# 🩺 Fetal Health Analysis using Machine Learning & AI Assistant
 
-> An end-to-end AI-powered platform combining machine learning, deep learning, and LLM-based intelligence to analyze maternal and fetal health data with clinical-grade interpretability.
-
-**Author:** Priyankshu Sinha · B.Tech Final Year Project  
-**Repo:** [github.com/Priyankshu-07/Maternal_Health](https://github.com/Priyankshu-07/Maternal_Health)
+> An intelligent, multi-pipeline clinical decision support system for maternal and fetal health monitoring — combining classical ML, deep learning, and a conversational AI assistant into a unified, evidence-based platform.
 
 ---
 
-## Overview
+## 📌 Table of Contents
 
-This project integrates five specialized prediction pipelines under a unified FastAPI backend and React frontend, with an AI report generation layer powered by LangChain + LLMs that converts raw model outputs into structured medical summaries.
-
----
-
-## Core Modules
-
-### 1 · Maternal Health Risk Prediction
-- **Input:** Clinical parameters — age, blood pressure, glucose, heart rate, body temperature
-- **Model:** XGBoost (Extreme Gradient Boosting)
-- **Output:** Risk classification — `Low` / `Medium` / `High`
-
-### 2 · Fetal Heart Rate (CTG) Analysis
-- **Input:** Cardiotocography (CTG) signal data
-- **Model:** Artificial Neural Network (ANN)
-- **Output:** Fetal state — `Normal` / `Suspect` / `Pathological`
-
-### 3 · Ultrasound Image Classification
-- **Input:** Fetal ultrasound images
-- **Model:** ResNet50 with Transfer Learning
-- **Task:** Fetal anatomical plane classification
-- **Extra:** Grad-CAM visualizations for model explainability
-
-### 4 · Fetal Growth Analysis
-- Extracts biometric features (e.g., femur length)
-- Benchmarks against gestational age standards (Hadlock charts)
-- **Output:** Growth status — `Normal` / `Abnormal`
-
-### 5 · AI Report Generation ⭐
-- Powered by **LangChain + LLMs** via prompt-chaining
-- Converts all model outputs into:
-  - Structured clinical summaries
-  - Simplified patient-facing explanations
-  - Context-aware multi-input health reports
-
-### 6 · Intelligent AI Assistant
-- Conversational interface over all prediction results
-- Provides explanations, contextual insights, and on-demand report generation
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [System Architecture](#-system-architecture)
+- [ML & DL Pipelines](#-ml--dl-pipelines)
+- [AI Assistant](#-ai-assistant)
+- [Tech Stack](#-tech-stack)
+- [Datasets](#-datasets)
+- [Getting Started](#-getting-started)
+- [Future Work](#-future-work)
+- [License](#-license)
 
 ---
 
-## System Architecture
+## 🧬 Overview
+
+**Fetal Health Analysis** is a final-year capstone project that addresses the critical need for intelligent, accessible prenatal monitoring tools. The system integrates **five machine learning and deep learning pipelines** covering maternal risk, fetal cardiac activity, and anatomical ultrasound classification — all unified under a **RAG-powered conversational AI assistant** that provides personalized, evidence-based guidance to clinicians or patients.
+
+The platform ingests structured clinical data, CTG (cardiotocography) signals, and fetal ultrasound images to produce risk assessments and classifications in real time. The embedded AI assistant then contextualizes these outputs alongside a patient's history and indexed medical literature to generate meaningful, actionable responses.
+
+---
+
+## ✨ Key Features
+
+- 🔴 **Maternal Risk Classification** — Predicts Low / Medium / High maternal health risk using XGBoost on clinical vitals
+- 💓 **CTG Fetal State Analysis** — Classifies fetal state as Normal / Suspect / Pathological via an Artificial Neural Network
+- 🖼️ **Fetal Ultrasound Plane Detection** — Identifies anatomical scan planes (Head, Abdomen, Femur, etc.) using ResNet50 with Grad-CAM interpretability overlays
+- 🧠 **Fetal Head Segmentation** — Semantic segmentation of the fetal head in ultrasound images using U-Net
+- 🫀 **Fetal Abdomen Segmentation** — Anatomical segmentation of fetal abdominal structures using U-Net
+- 🤖 **AI Assistant (RAG)** — A LangChain-powered conversational assistant that fuses ML predictions and medical guidelines into personalised, context-aware clinical responses
+
+---
+
+## 🏗️ System Architecture
 
 ```
-Frontend (React + TypeScript)
+┌─────────────────────────────────────────────────────────┐
+│                     React.js Frontend                    │
+│              (TypeScript, Component-based UI)            │
+└──────────────────────┬──────────────────────────────────┘
+                       │  REST API
+┌──────────────────────▼──────────────────────────────────┐
+│                   FastAPI Backend                         │
+│         (Python, Async endpoints, Pydantic models)        │
+└───┬──────────────┬──────────────┬──────────────┬─────────┘
+    │              │              │              │
+┌───▼───┐   ┌──────▼─────┐  ┌────▼────┐  ┌─────▼──────┐
+│XGBoost│   │  ANN (CTG) │  │ResNet50 │  │  U-Net x2  │
+│Maternal│  │Fetal State │  │ + Grad- │  │ Head Seg.  │
+│ Risk  │   │Classifier  │  │   CAM   │  │ Abdo Seg.  │
+└───────┘   └────────────┘  └─────────┘  └────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────┐
+│                   AI Assistant Layer                      │
+│                                                          │
+│  ┌──────────────┐        ┌──────────────┐               │
+│  │  LangChain   │        │  Vector DB   │               │
+│  │  Memory +    │◄──────►│(Chroma /    │               │
+│  │  LLM Chain   │        │  Pinecone)   │               │
+│  └──────────────┘        └──────────────┘               │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔬 ML & DL Pipelines
+
+### 1. Maternal Health Risk Prediction
+| Attribute | Detail |
+|-----------|--------|
+| Model | XGBoost Classifier |
+| Input | Age, Blood Pressure, Blood Glucose, Body Temp, Heart Rate |
+| Output | Risk Level: **Low / Medium / High** |
+| Dataset | [Kaggle — csafrit2](https://www.kaggle.com/datasets/csafrit2/maternal-health-risk-data) |
+
+---
+
+### 2. Fetal Heart Rate (CTG) Analysis
+| Attribute | Detail |
+|-----------|--------|
+| Model | Artificial Neural Network (ANN) |
+| Input | 21 CTG features (baseline FHR, accelerations, decelerations, histogram features, etc.) |
+| Output | Fetal State: **Normal / Suspect / Pathological** |
+| Dataset | [Kaggle — andrewmvd](https://www.kaggle.com/datasets/andrewmvd/fetal-health-classification) |
+
+---
+
+### 3. Fetal Ultrasound Anatomical Plane Classification
+| Attribute | Detail |
+|-----------|--------|
+| Model | ResNet50 (Transfer Learning) + Grad-CAM |
+| Input | 2D Fetal Ultrasound Images |
+| Output | Anatomical Plane: Head / Abdomen / Femur / Other |
+| Explainability | Grad-CAM heatmaps to highlight model attention regions |
+| Dataset | [Zenodo — Record 3904280](https://zenodo.org/records/3904280) |
+
+---
+
+### 4. Fetal Head Segmentation (U-Net)
+| Attribute | Detail |
+|-----------|--------|
+| Model | U-Net (Encoder-Decoder with skip connections) |
+| Input | Fetal head ultrasound scan |
+| Output | Pixel-wise segmentation mask of the fetal head |
+| Clinical Use | Head circumference estimation, growth assessment |
+| Dataset | [Zenodo — Record 8265464](https://zenodo.org/records/8265464) |
+
+---
+
+### 5. Fetal Abdomen Segmentation (U-Net)
+| Attribute | Detail |
+|-----------|--------|
+| Model | U-Net |
+| Input | Fetal abdominal ultrasound images |
+| Output | Segmentation mask of abdominal structures |
+| Clinical Use | Abdominal circumference measurement, organ identification |
+| Dataset | [Kaggle — orvile](https://www.kaggle.com/datasets/orvile/fetal-abdominal-structures-segmentation-dataset) |
+
+---
+
+## 🤖 AI Assistant
+
+The AI assistant is the intelligence layer that synthesises everything:
+
+- **Retrieval-Augmented Generation (RAG):** Queries a Vector DB (Chroma or Pinecone) pre-loaded with indexed medical guidelines and obstetric literature, retrieving the most relevant context before generating a response.
+- **ML Output Integration:** Receives real-time risk scores and classifications from all five pipelines as part of its context window.
+- **Conversational Memory:** Uses LangChain's memory module to maintain multi-turn conversation context, enabling coherent and progressive dialogue across a consultation session.
+- **Prompt Engineering:** System prompts are carefully designed to ensure responses are medically responsible, evidence-based, and appropriately caveated.
+
+```
+User Query
+    │
+    ▼
+LangChain Chain
+    ├── Retrieve: Vector DB (medical guidelines)
+    └── Generate: LLM with assembled context
          │
          ▼
-Backend (FastAPI · Python)
-         │
-         ├── XGBoost              → Maternal Risk (Low / Medium / High)
-         ├── ANN                  → CTG Fetal State Classification
-         ├── ResNet50 (Transfer)  → Ultrasound Plane Classification
-         │        └── Grad-CAM   → Explainability Heatmaps
-         ├── Growth Engine        → Biometric vs. Hadlock Standards
-         │
-         └── LangChain + LLM
-                  └── AI Report Generation + Intelligent Assistant
+   Personalised Clinical Response
 ```
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Technologies |
-|---|---|
+|-------|-------------|
 | **Frontend** | React.js, TypeScript |
 | **Backend** | Python, FastAPI |
-| **ML / DL** | XGBoost, ANN, ResNet50, Scikit-learn, TensorFlow / PyTorch, OpenCV |
+| **ML / DL** | XGBoost, ANN, ResNet50, U-Net, Scikit-learn, TensorFlow / PyTorch, OpenCV |
 | **AI Layer** | LangChain, LLMs, Prompt Engineering |
+| **Explainability** | Grad-CAM |
 
 ---
 
-## Getting Started
+## 📊 Datasets
+
+| # | Dataset | Source | Used For |
+|---|---------|--------|----------|
+| 1 | Maternal Health Risk Dataset | [Kaggle · csafrit2](https://www.kaggle.com/datasets/csafrit2/maternal-health-risk-data) | XGBoost maternal risk classifier (Low / Medium / High) |
+| 2 | Fetal Health Classification (CTG) | [Kaggle · andrewmvd](https://www.kaggle.com/datasets/andrewmvd/fetal-health-classification) | ANN fetal state classifier (Normal / Suspect / Pathological) |
+| 3 | Fetal Ultrasound Planes Dataset | [Zenodo · Record 3904280](https://zenodo.org/records/3904280) | ResNet50 anatomical plane classification + Grad-CAM |
+| 4 | Fetal Head Ultrasound Dataset | [Zenodo · Record 8265464](https://zenodo.org/records/8265464) | U-Net fetal head segmentation |
+| 5 | Fetal Abdominal Structures Dataset | [Kaggle · orvile](https://www.kaggle.com/datasets/orvile/fetal-abdominal-structures-segmentation-dataset) | U-Net fetal abdomen segmentation |
+
+> **Note:** The Femur classification model reuses the Fetal Ultrasound Planes Dataset (Zenodo · Record 3904280), leveraging the femur plane subset within the same dataset.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 18+
+- API key for your LLM provider (OpenAI / Anthropic)
+
+### 1. Clone the Repository
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/Priyankshu-07/Maternal_Health.git
-cd Maternal_Health
+git clone https://github.com/your-username/fetal-health-analysis.git
+cd fetal-health-analysis
+```
 
-# 2. Install Python dependencies
+### 2. Backend Setup
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-# 3. Start the FastAPI backend
-uvicorn main:app --reload
+Create a `.env` file in `backend/`:
 
-# 4. Launch the React frontend (new terminal)
+```env
+OPENAI_API_KEY=your_openai_key           # or Anthropic key
+VECTOR_DB=chroma                         # or pinecone
+```
+
+Run the backend:
+
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+### 3. Frontend Setup
+
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
----
+The app will be available at `http://localhost:5173`.
 
-## Datasets
+### 4. Ingest Medical Guidelines into Vector DB
 
-| # | Dataset | Source | Used For |
-|---|---|---|---|
-| 1 | **Maternal Health Risk Dataset** | [Kaggle · csafrit2](https://www.kaggle.com/datasets/csafrit2/maternal-health-risk-data) | XGBoost risk classifier (Low / Medium / High) |
-| 2 | **Fetal Health Classification (CTG)** | [Kaggle · andrewmvd](https://www.kaggle.com/datasets/andrewmvd/fetal-health-classification) | ANN fetal state classifier (Normal / Suspect / Pathological) |
-| 3 | **Fetal Ultrasound Planes Dataset** | [Zenodo · Record 3904280](https://zenodo.org/records/3904280) | ResNet50 anatomical plane classification + Grad-CAM |
+```bash
+cd ai_assistant/vector_store
+python ingest.py --source ../../data/guidelines/
+```
 
----
+### 5. Train Models (Optional — pre-trained weights included)
 
-## Evaluation Metrics
+```bash
+# Maternal Risk
+python ml/maternal_risk/train.py
 
-All models evaluated on: **Accuracy · Precision · Recall · F1 Score**
+# CTG ANN
+python ml/ctg_analysis/train.py
 
-High F1 scores across models indicate well-balanced precision/recall — critical in clinical prediction tasks where both false positives and false negatives carry meaningful risk.
+# ResNet50 Ultrasound Classifier
+python ml/ultrasound_classification/train_resnet50.py
 
----
+# U-Net Head Segmentation
+python ml/head_segmentation/train_unet.py
 
-## Limitations
-
-- Not clinically certified — for research and academic use only
-- Model performance is dependent on training dataset size and diversity
-- Requires further real-world clinical validation before any deployment
-- No real-time ultrasound video stream support in the current version
-
----
-
-## Roadmap
-
-- [ ] Real-time ultrasound video processing
-- [ ] Automated advanced biometric measurements
-- [ ] Cloud deployment (AWS / GCP)
-- [ ] Integration with hospital EHR systems
+# U-Net Abdomen Segmentation
+python ml/abdomen_segmentation/train_unet.py
+```
 
 ---
 
-## License
+## 🔮 Future Work
 
-This project is developed for **academic and research purposes only** and is not intended for clinical use.
+- [ ] DICOM image support for hospital-grade ultrasound integration
+- [ ] Gestational age estimation from fetal biometry measurements
+- [ ] Real-time fetal movement monitoring via video analysis
+- [ ] Integration with Electronic Health Records (EHR) systems via HL7/FHIR
+- [ ] Federated learning to train across hospitals without sharing patient data
 
 ---
 
-*Built by [Priyankshu Sinha](https://github.com/Priyankshu-07) · Final Year B.Tech Project*
+Built as a Final Year Project — combining clinical domain knowledge with modern AI/ML engineering to make prenatal care smarter and more accessible.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
