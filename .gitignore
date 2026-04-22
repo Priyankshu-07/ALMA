@@ -15,3 +15,6 @@ venv/
 # VS Code
 # ===============================
 .vscode/
+
+# Specific Large Models
+Models/unet_abdomen.pth
