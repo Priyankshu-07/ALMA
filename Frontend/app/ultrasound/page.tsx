@@ -15,6 +15,7 @@ import {
   TrendingUp,
   X,
 } from "lucide-react"
+import { Input } from "@/components/ui/input"
 export default function UltrasoundPage() {
   const { ultrasound, setUltrasound } = useAppContext()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -162,7 +163,7 @@ export default function UltrasoundPage() {
                   }
                 `}
               >
-                <input
+                <Input
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
@@ -184,12 +185,12 @@ export default function UltrasoundPage() {
                     alt="Uploaded ultrasound"
                     className="w-full h-auto max-h-80 object-contain"
                   />
-                  <button
+                  <Button
                     onClick={clearImage}
                     className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
                   >
                     <X className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
 
                 <Button onClick={analyzeImage} disabled={isAnalyzing} className="w-full">

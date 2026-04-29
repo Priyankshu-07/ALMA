@@ -27,7 +27,7 @@ export default function FHRPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const analyzeFHR = () => {
+  const analyzeFHR = async () => {
     // Validate all fields
     const values = Object.values(formData)
     if (values.some((v) => v === "")) {
@@ -37,79 +37,65 @@ export default function FHRPage() {
 
     setIsAnalyzing(true)
 
-    // Simulate AI analysis
-    setTimeout(() => {
-      const baseline = Number(formData.baseline)
-      const accelerations = Number(formData.accelerations)
-      const fetalMovement = Number(formData.fetalMovement)
-      const uterineContractions = Number(formData.uterineContractions)
-      const lightDecelerations = Number(formData.lightDecelerations)
-      const severeDecelerations = Number(formData.severeDecelerations)
-
-      // FHR classification logic based on FIGO guidelines
-      let status: "normal" | "suspect" | "pathological"
-      let interpretation: string
-      let score = 0
-
-      // Baseline assessment (normal: 110-160 bpm)
-      if (baseline < 100 || baseline > 180) {
-        score += 3
-      } else if (baseline < 110 || baseline > 160) {
-        score += 1
-      }
-
-      // Accelerations (reactive pattern desired)
-      if (accelerations === 0) {
-        score += 2
-      } else if (accelerations < 2) {
-        score += 1
-      }
-
-      // Fetal movement
-      if (fetalMovement === 0) {
-        score += 2
-      } else if (fetalMovement < 3) {
-        score += 1
-      }
-
-      // Uterine contractions (high number with poor variability is concerning)
-      if (uterineContractions > 5) {
-        score += 1
-      }
-
-      // Decelerations
-      if (severeDecelerations > 0) {
-        score += 3
-      }
-      if (lightDecelerations > 3) {
-        score += 1
-      }
-
-      if (score <= 2) {
-        status = "normal"
-        interpretation = "The fetal heart rate pattern shows normal baseline with adequate variability and appropriate accelerations. This is a reassuring trace indicating good fetal oxygenation. Continue routine monitoring."
-      } else if (score <= 5) {
-        status = "suspect"
-        interpretation = "The FHR trace shows some concerning features that warrant closer observation. The pattern may indicate early fetal compromise or stress. Recommend continuous monitoring and consider further evaluation."
-      } else {
-        status = "pathological"
-        interpretation = "The FHR pattern is abnormal and suggests significant fetal compromise. Features indicate possible hypoxia or distress. Immediate clinical assessment and intervention may be required. Consider urgent delivery if pattern persists."
-      }
-
-      setFHR({
-        baseline,
-        accelerations,
-        fetalMovement,
-        uterineContractions,
-        lightDecelerations,
-        severeDecelerations,
-        status,
-        interpretation,
+    try {
+      const response = await fetch("http://localhost:8000/predict-fhr", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          baseline: Number(formData.baseline),
+          accelerations: Number(formData.accelerations),
+          fetalMovement: Number(formData.fetalMovement),
+          uterineContractions: Number(formData.uterineContractions),
+          lightDecelerations: Number(formData.lightDecelerations),
+          severeDecelerations: Number(formData.severeDecelerations),
+        }),
       })
 
-      setIsAnalyzing(false)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || "Analysis failed")
+      }
+
+      const data = await response.json()
+
+      // data.prediction is "Normal" | "Suspect" | "Pathological" from the backend
+      // Normalize to lowercase to match frontend StatusBadge expectations
+      const status = data.prediction.toLowerCase() as "normal" | "suspect" | "pathological"
+
+      setFHR({
+        baseline: Number(formData.baseline),
+        accelerations: Number(formData.accelerations),
+        fetalMovement: Number(formData.fetalMovement),
+        uterineContractions: Number(formData.uterineContractions),
+        lightDecelerations: Number(formData.lightDecelerations),
+        severeDecelerations: Number(formData.severeDecelerations),
+        status,
+        interpretation: getInterpretation(status),
+      })
+
       toast.success("FHR analysis complete")
-    }, 1500)
+
+    } catch (error: any) {
+      console.error("FHR analysis error:", error)
+      toast.error(error.message || "Something went wrong during analysis")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  // Local helper to generate clinical interpretation from the status label
+  // since backend only returns the classification label, not explanation text
+  const getInterpretation = (status: "normal" | "suspect" | "pathological"): string => {
+    switch (status) {
+      case "normal":
+        return "The fetal heart rate pattern shows normal baseline with adequate variability and appropriate accelerations. This is a reassuring trace indicating good fetal oxygenation. Continue routine monitoring."
+      case "suspect":
+        return "The FHR trace shows some concerning features that warrant closer observation. The pattern may indicate early fetal compromise or stress. Recommend continuous monitoring and consider further evaluation."
+      case "pathological":
+        return "The FHR pattern is abnormal and suggests significant fetal compromise. Features indicate possible hypoxia or distress. Immediate clinical assessment and intervention may be required. Consider urgent delivery if pattern persists."
+    }
   }
 
   const getStatusIcon = () => {
@@ -288,8 +274,8 @@ export default function FHRPage() {
 
                 <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30 p-3">
                   <p className="text-xs text-amber-800 dark:text-amber-200">
-                    <strong>Note:</strong> This analysis is for decision support only. 
-                    Clinical judgment should always be exercised in conjunction with 
+                    <strong>Note:</strong> This analysis is for decision support only.
+                    Clinical judgment should always be exercised in conjunction with
                     this assessment.
                   </p>
                 </div>

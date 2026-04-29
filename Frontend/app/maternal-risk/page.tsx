@@ -27,7 +27,7 @@ export default function MaternalRiskPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const analyzeRisk = () => {
+  const analyzeRisk = async () => {
     // Validate all fields
     const values = Object.values(formData)
     if (values.some((v) => v === "" || v === 0)) {
@@ -37,83 +37,65 @@ export default function MaternalRiskPage() {
 
     setIsAnalyzing(true)
 
-    // Simulate AI analysis with realistic delay
-    setTimeout(() => {
-      const age = Number(formData.age)
-      const systolicBP = Number(formData.systolicBP)
-      const diastolicBP = Number(formData.diastolicBP)
-      const bloodSugar = Number(formData.bloodSugar)
-      const bodyTemp = Number(formData.bodyTemperature)
-      const heartRate = Number(formData.heartRate)
-
-      // Risk calculation logic
-      let riskScore = 0
-      const factors: string[] = []
-
-      // Age risk
-      if (age < 18 || age > 35) {
-        riskScore += 2
-        factors.push(age < 18 ? "young maternal age" : "advanced maternal age")
-      }
-
-      // Blood pressure risk
-      if (systolicBP >= 140 || diastolicBP >= 90) {
-        riskScore += 3
-        factors.push("elevated blood pressure (hypertension)")
-      } else if (systolicBP >= 130 || diastolicBP >= 85) {
-        riskScore += 1
-        factors.push("pre-hypertensive blood pressure")
-      }
-
-      // Blood sugar risk
-      if (bloodSugar > 140) {
-        riskScore += 3
-        factors.push("high blood glucose levels")
-      } else if (bloodSugar > 120) {
-        riskScore += 1
-        factors.push("elevated blood glucose")
-      }
-
-      // Temperature risk
-      if (bodyTemp > 38 || bodyTemp < 36) {
-        riskScore += 2
-        factors.push(bodyTemp > 38 ? "fever present" : "hypothermia detected")
-      }
-
-      // Heart rate risk
-      if (heartRate > 100 || heartRate < 60) {
-        riskScore += 2
-        factors.push(heartRate > 100 ? "tachycardia" : "bradycardia")
-      }
-
-      let riskLevel: "low" | "medium" | "high"
-      let explanation: string
-
-      if (riskScore <= 2) {
-        riskLevel = "low"
-        explanation = "All maternal health indicators are within normal ranges. Continue routine prenatal care and monitoring."
-      } else if (riskScore <= 5) {
-        riskLevel = "medium"
-        explanation = `Moderate risk factors detected: ${factors.join(", ")}. Enhanced monitoring and lifestyle modifications recommended. Consider additional consultations.`
-      } else {
-        riskLevel = "high"
-        explanation = `High-risk pregnancy indicators: ${factors.join(", ")}. Immediate specialist consultation recommended. Close monitoring and intervention may be required.`
-      }
-
-      setMaternalRisk({
-        age,
-        systolicBP,
-        diastolicBP,
-        bloodSugar,
-        bodyTemperature: bodyTemp,
-        heartRate,
-        riskLevel,
-        explanation,
+    try {
+      const response = await fetch("http://localhost:8000/predict-maternal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          age: Number(formData.age),
+          systolicBP: Number(formData.systolicBP),
+          diastolicBP: Number(formData.diastolicBP),
+          bloodSugar: Number(formData.bloodSugar),
+          bodyTemperature: Number(formData.bodyTemperature),
+          heartRate: Number(formData.heartRate),
+        }),
       })
 
-      setIsAnalyzing(false)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || "Analysis failed")
+      }
+
+      const data = await response.json()
+
+      // data.prediction is "low" | "mid" | "high" from the backend
+      // Normalize "mid" -> "medium" to match frontend StatusBadge expectations
+      const riskLevel = data.prediction === "mid" ? "medium" : data.prediction as "low" | "medium" | "high"
+
+      setMaternalRisk({
+        age: Number(formData.age),
+        systolicBP: Number(formData.systolicBP),
+        diastolicBP: Number(formData.diastolicBP),
+        bloodSugar: Number(formData.bloodSugar),
+        bodyTemperature: Number(formData.bodyTemperature),
+        heartRate: Number(formData.heartRate),
+        riskLevel,
+        explanation: getExplanation(riskLevel),
+      })
+
       toast.success("Analysis complete")
-    }, 1500)
+
+    } catch (error: any) {
+      console.error("Maternal risk error:", error)
+      toast.error(error.message || "Something went wrong during analysis")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  // Local helper to generate a clinical explanation based on risk level
+  // since the backend only returns the risk label, not a text explanation
+  const getExplanation = (riskLevel: "low" | "medium" | "high"): string => {
+    switch (riskLevel) {
+      case "low":
+        return "All maternal health indicators are within normal ranges. Continue routine prenatal care and monitoring."
+      case "medium":
+        return "Moderate risk factors detected. Enhanced monitoring and lifestyle modifications recommended. Consider additional consultations."
+      case "high":
+        return "High-risk pregnancy indicators detected. Immediate specialist consultation recommended. Close monitoring and intervention may be required."
+    }
   }
 
   const getRiskIcon = () => {
