@@ -105,7 +105,6 @@ async def analyze_image(file: UploadFile = File(...)):
         image_np = np.array(image)
 
         plane = classify_plane(image_np)
-
         hc_mm, ac_mm, fl_mm = None, None, None
 
         if plane == "HEAD":
@@ -113,7 +112,8 @@ async def analyze_image(file: UploadFile = File(...)):
         elif plane == "ABDOMEN":
             ac_mm = measure_abdominal_circumference(image_np)
         elif plane == "FEMUR":
-            fl_mm = measure_femur_length(image_np)
+            femur_result = measure_femur_length(image_np)
+            fl_mm = femur_result["FL_mm"] if femur_result is not None else None
         else:
             raise HTTPException(status_code=422, detail=f"Could not classify ultrasound plane. Got: {plane}")
 
@@ -134,11 +134,11 @@ async def analyze_image(file: UploadFile = File(...)):
             "status": "success",
             "plane_detected": plane,
             "measurements": {
-                "HC_mm": round(hc_mm, 2) if hc_mm else None,
-                "AC_mm": round(ac_mm, 2) if ac_mm else None,
-                "FL_mm": round(fl_mm, 2) if fl_mm else None,
+                "HC_mm": round(hc_mm, 2) if hc_mm is not None else None,
+                "AC_mm": round(ac_mm, 2) if ac_mm is not None else None,
+                "FL_mm": round(fl_mm, 2) if fl_mm is not None else None,
             },
-            "estimated_fetal_weight_grams": round(efw_grams, 2) if efw_grams else None,
+            "estimated_fetal_weight_grams": round(efw_grams, 2) if efw_grams is not None else None,
             "growth_status": growth_status,
         })
 
