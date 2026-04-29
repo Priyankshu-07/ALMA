@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useCallback } from "react"
 import { useAppContext } from "@/lib/app-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,11 +15,11 @@ import {
   TrendingUp,
   X,
 } from "lucide-react"
-
 export default function UltrasoundPage() {
   const { ultrasound, setUltrasound } = useAppContext()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [uploadedImage, setUploadedImage] = useState<string | null>(ultrasound.imageUrl)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -38,6 +37,7 @@ export default function UltrasoundPage() {
     setIsDragging(false)
     const file = e.dataTransfer.files[0]
     if (file && file.type.startsWith("image/")) {
+      setImageFile(file)
       const reader = new FileReader()
       reader.onload = (event) => {
         setUploadedImage(event.target?.result as string)
@@ -49,6 +49,7 @@ export default function UltrasoundPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setImageFile(file)
       const reader = new FileReader()
       reader.onload = (event) => {
         setUploadedImage(event.target?.result as string)
@@ -59,6 +60,7 @@ export default function UltrasoundPage() {
 
   const clearImage = () => {
     setUploadedImage(null)
+    setImageFile(null)
     setUltrasound({
       imageUrl: null,
       maskUrl: null,
@@ -69,52 +71,52 @@ export default function UltrasoundPage() {
     })
   }
 
-  const analyzeImage = () => {
-    if (!uploadedImage) {
+  const analyzeImage = async () => {
+    if (!uploadedImage || !imageFile) {
       toast.error("Please upload an ultrasound image first")
       return
     }
 
     setIsAnalyzing(true)
 
-    // Simulate AI analysis
-    setTimeout(() => {
-      // Randomly select detected body part for demo
-      const parts: ("HEAD" | "ABDOMEN" | "FEMUR")[] = ["HEAD", "ABDOMEN", "FEMUR"]
-      const detectedPart = parts[Math.floor(Math.random() * parts.length)]
+    try {
+      const formData = new FormData()
+      formData.append("file", imageFile)
 
-      // Generate realistic measurements based on typical fetal biometry
-      // Using approximate values for ~32 weeks gestation
-      const hc = Math.round(280 + Math.random() * 40) // 280-320mm
-      const ac = Math.round(270 + Math.random() * 40) // 270-310mm
-      const fl = Math.round(58 + Math.random() * 10) // 58-68mm
+      const response = await fetch("http://localhost:8000/analyze-image", {
+        method: "POST",
+        body: formData,
+        // Do NOT manually set Content-Type — browser sets multipart boundary automatically
+      })
 
-      // Calculate EFW using Hadlock formula (simplified)
-      // Log10(EFW) = 1.326 - 0.00326×AC×FL + 0.0107×HC + 0.0438×AC + 0.158×FL
-      const efw = Math.round(1800 + Math.random() * 600) // 1800-2400g for ~32 weeks
-
-      // Determine growth status based on EFW
-      let growthStatus: "normal" | "underdeveloped" | "overgrowth"
-      if (efw < 1700) {
-        growthStatus = "underdeveloped"
-      } else if (efw > 2500) {
-        growthStatus = "overgrowth"
-      } else {
-        growthStatus = "normal"
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || "Analysis failed")
       }
+
+      const data = await response.json()
 
       setUltrasound({
         imageUrl: uploadedImage,
-        maskUrl: uploadedImage, // In real app, this would be the segmentation mask
-        detectedPart,
-        measurements: { hc, ac, fl },
-        efw,
-        growthStatus,
+        maskUrl: uploadedImage,                        // backend doesn't return mask URL yet
+        detectedPart: data.plane_detected,             // "HEAD" | "ABDOMEN" | "FEMUR"
+        measurements: {
+          hc: data.measurements.HC_mm,                // backend returns HC_mm
+          ac: data.measurements.AC_mm,                // backend returns AC_mm
+          fl: data.measurements.FL_mm,                // backend returns FL_mm
+        },
+        efw: data.estimated_fetal_weight_grams,
+        growthStatus: data.growth_status,             // "normal" | "underdeveloped" | "overgrowth"
       })
 
-      setIsAnalyzing(false)
       toast.success("Ultrasound analysis complete")
-    }, 2500)
+
+    } catch (error: any) {
+      console.error("Analysis error:", error)
+      toast.error(error.message || "Something went wrong during analysis")
+    } finally {
+      setIsAnalyzing(false)
+    }
   }
 
   return (
@@ -154,8 +156,8 @@ export default function UltrasoundPage() {
                 className={`
                   relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12
                   transition-colors cursor-pointer
-                  ${isDragging 
-                    ? "border-primary bg-primary/5" 
+                  ${isDragging
+                    ? "border-primary bg-primary/5"
                     : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
                   }
                 `}
