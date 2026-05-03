@@ -27,7 +27,7 @@ from albumentations.pytorch import ToTensorV2
 logger = logging.getLogger("fetal_health.head")
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-_MODEL_PATH = Path(__file__).resolve().parent.parent / "Models" / "head.pth"
+_MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "Models" / "head.pth"
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 IMG_SIZE          = 256

@@ -27,7 +27,7 @@ import torch.nn as nn
 logger = logging.getLogger("fetal_health.abdomen")
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-_MODEL_PATH = Path(__file__).resolve().parent.parent / "Models" / "unet_abdomen.pth"
+_MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "Models" / "unet_abdomen.pth"
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 IMG_SIZE         = 256

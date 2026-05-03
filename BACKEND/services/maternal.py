@@ -19,7 +19,7 @@ import numpy as np
 logger = logging.getLogger("fetal_health.maternal")
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-_BASE         = Path(__file__).resolve().parent.parent / "Models"
+_BASE         = Path(__file__).resolve().parent.parent.parent / "Models"
 _MODEL_PATH   = _BASE / "best_model.pkl"
 _SCALER_PATH  = _BASE / "scaler.pkl"
 _ENCODER_PATH = _BASE / "label_encoder.pkl"

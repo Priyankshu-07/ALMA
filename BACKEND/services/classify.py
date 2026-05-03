@@ -33,7 +33,7 @@ from torchvision import models, transforms
 logger = logging.getLogger("fetal_health.classify")
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-_MODEL_PATH = Path(__file__).resolve().parent.parent / "Models" / "resnet50_fetal_planes.pth"
+_MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "Models" / "resnet50_fetal_planes.pth"
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 IMG_SIZE   = 224

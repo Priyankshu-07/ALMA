@@ -19,7 +19,7 @@ import numpy as np
 logger = logging.getLogger("fetal_health.fhr")
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-_BASE         = Path(__file__).resolve().parent.parent / "Models"
+_BASE         = Path(__file__).resolve().parent.parent.parent / "Models"
 _MODEL_PATH   = _BASE / "ann_fhr_model.keras"
 _SCALER_PATH  = _BASE / "fhr_scaler.pkl"
 
