@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger("fetal_health.femur")
 
 # Adjust this if your ultrasound machine has a known calibration factor
-PIXEL_SPACING_MM = 0.28  # mm per pixel
+PIXEL_SPACING_MM = 0.15  # mm per pixel
 
 
 def detect_femur_length_pixels(image: np.ndarray) -> float | None:

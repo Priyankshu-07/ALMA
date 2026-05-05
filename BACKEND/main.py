@@ -1,27 +1,12 @@
-"""
-main.py
-Fetal Health Analysis API
-
-Routes:
-  GET  /                  → health check
-  GET  /health            → health check
-  POST /predict-maternal  → maternal risk prediction
-  POST /predict-fhr       → fetal heart rate condition
-  POST /analyze-image     → single ultrasound image analysis
-  POST /analyze-images    → multiple ultrasound images (1-3) + gestational age
-"""
-
 import io
 import logging
 from typing import List, Optional
-
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from PIL import Image
 from pydantic import BaseModel
-
 from services.maternal import predict_maternal_risk
 from services.fhr import predict_fhr
 from services.classify import classify_plane
@@ -29,7 +14,6 @@ from services.head import measure_head_circumference
 from services.abdomen import measure_abdominal_circumference
 from services.femur import measure_femur_length
 from services.hadlock import estimate_fetal_weight, classify_efw
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -45,9 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# ── Pydantic Schemas ───────────────────────────────────────────────────────────
 class MaternalRequest(BaseModel):
     age:             float
     systolicBP:      float

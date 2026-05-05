@@ -1,41 +1,20 @@
-"""
-services/fhr.py
-Fetal Heart Rate (FHR) Condition Prediction
-
-Models:  Models/ann_fhr_model.keras
-         Models/fhr_scaler.pkl
-
-Input:   [baseline, accelerations, fetalMovement, uterineContractions,
-          lightDecelerations, severeDecelerations]
-Output:  { "condition": "Normal" | "Suspect" | "Pathological", "confidence": float }
-"""
-
 import logging
 from pathlib import Path
-
 import numpy as np
-
 logger = logging.getLogger("fetal_health.fhr")
-
 # ── Paths ──────────────────────────────────────────────────────────────────────
 _BASE        = Path(__file__).resolve().parent.parent.parent / "Models"
 _MODEL_PATH  = _BASE / "ann_fhr_model.keras"
 _SCALER_PATH = _BASE / "fhr_scaler.pkl"
-
 # ── Class labels (index → label) ──────────────────────────────────────────────
 _LABELS = ["Normal", "Suspect", "Pathological"]
-
 # ── Lazy-loaded singletons ─────────────────────────────────────────────────────
 _model  = None
 _scaler = None
-
-
 def _load_artifacts() -> None:
     global _model, _scaler
-
     if _model is not None:
         return
-
     for path, label in [
         (_MODEL_PATH,  "ann_fhr_model.keras"),
         (_SCALER_PATH, "fhr_scaler.pkl"),
@@ -45,7 +24,6 @@ def _load_artifacts() -> None:
                 f"[fhr] Required artifact not found: {path}\n"
                 f"Make sure '{label}' is inside the Models/ folder."
             )
-
     # Load Keras model using tensorflow directly (saved with ann_model.save())
     import tensorflow as tf
     _model = tf.keras.models.load_model(str(_MODEL_PATH))
