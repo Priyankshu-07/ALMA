@@ -110,20 +110,39 @@ def _mask_to_ac_mm(mask: np.ndarray, pixel_spacing: float) -> float | None:
         return None
     ellipse      = cv2.fitEllipse(cnt)
     (_, axes, _) = ellipse
-    a            = max(axes)   
-    b            = min(axes)
-    ac_pixels = np.pi * (a + b) / 2
+    a_semi = max(axes) / 2
+    b_semi = min(axes) / 2
+    h = ((a_semi - b_semi) ** 2) / ((a_semi + b_semi) ** 2)
+    ac_pixels = np.pi * (a_semi + b_semi) * (1 + (3 * h) / (10 + (4 - 3 * h) ** 0.5))
     ac_mm     = ac_pixels * pixel_spacing
-    logger.info(f"[abdomen] Ellipse axes: a={a:.1f}px, b={b:.1f}px → AC={ac_mm:.2f}mm")
+    logger.info(f"[abdomen] Ellipse axes: a={a_semi:.1f}px, b={b_semi:.1f}px → AC={ac_mm:.2f}mm")
     return ac_mm
+
+_AC_REFERENCE = {
+    12: 56,  13: 67,  14: 78,  15: 90,
+    16: 102, 17: 114, 18: 126, 19: 138,
+    20: 150, 21: 162, 22: 174, 23: 186,
+    24: 198, 25: 210, 26: 222, 27: 234,
+    28: 246, 29: 258, 30: 270, 31: 282,
+    32: 294, 33: 306, 34: 315, 35: 323,
+    36: 330, 37: 336, 38: 341, 39: 345,
+    40: 348, 41: 350, 42: 352,
+}
+
 def _classify_ac(ac_mm: float, gestational_age: int) -> str:
-    expected = 10.0 * gestational_age
-    if ac_mm < 0.9 * expected:
+    expected = _AC_REFERENCE.get(gestational_age)
+    if expected is None:
+        return "Unknown"
+    ratio = ac_mm / expected
+    if ratio < 0.80:
+        return "Severely Underdeveloped"
+    elif ratio < 0.90:
         return "Mildly Underdeveloped"
-    elif ac_mm > 1.1 * expected:
+    elif ratio > 1.10:
         return "Large for Gestational Age"
     else:
         return "Normal"
+
 def measure_abdominal_circumference(
     image_np: np.ndarray,
     gestational_age: int = None,
