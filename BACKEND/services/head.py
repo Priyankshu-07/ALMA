@@ -9,7 +9,7 @@ from albumentations.pytorch import ToTensorV2
 logger = logging.getLogger("fetal_health.head")
 _MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "Models" / "head.pth"
 IMG_SIZE         = 256
-PIXEL_SPACING_MM = 0.14  
+PIXEL_SPACING_MM = 0.176  
 _DEVICE          = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 _HC_REFERENCE = {
     12: 70,  13: 84,  14: 98,  15: 112,

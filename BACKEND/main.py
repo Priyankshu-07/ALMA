@@ -97,7 +97,7 @@ def _analyze_single_image(
     efw_grams    = None
     growth_status = None
     if any(v is not None for v in [hc_mm, ac_mm, fl_mm]):
-        efw_grams = estimate_fetal_weight(hc=hc_mm, ac=ac_mm, fl=fl_mm)
+        efw_grams = estimate_fetal_weight(hc=hc_mm, ac=ac_mm, fl=fl_mm, gestational_age=gestational_age)
     if efw_grams is not None and gestational_age is not None:
         growth_status = classify_efw(efw_grams, gestational_age)
     elif efw_grams is not None:
