@@ -11,7 +11,7 @@ logger = logging.getLogger("fetal_health.abdomen")
 _MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "Models" / "unet_abdomen.pth"
 
 IMG_SIZE         = 256
-PIXEL_SPACING_MM = 0.1
+PIXEL_SPACING_MM = 0.5
 _DEVICE          = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 _AC_REFERENCE = {
