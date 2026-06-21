@@ -1,4 +1,4 @@
-# 🩺 Fetal Health Analysis using Machine Learning & Deep Learning
+#  Fetal Health Analysis using Machine Learning & Deep Learning
 
 An end-to-end healthcare AI platform that combines machine learning, deep learning, computer vision, and full-stack web development to assist in maternal and fetal health assessment.
 
@@ -6,7 +6,7 @@ The system analyzes clinical data, fetal cardiotocography (CTG) records, and ult
 
 ---
 
-## 🚀 Project Highlights
+##  Project Highlights
 
 * Full-stack healthcare AI platform built with **Next.js, TypeScript, FastAPI, and Python**
 * **4 independent ML/DL pipelines** integrated into a single clinical dashboard
@@ -18,7 +18,7 @@ The system analyzes clinical data, fetal cardiotocography (CTG) records, and ult
 
 ---
 
-## 🎯 Problem Statement
+##  Problem Statement
 
 Prenatal healthcare often requires the interpretation of multiple clinical data sources including maternal vitals, fetal heart monitoring records, and ultrasound scans.
 
@@ -32,7 +32,7 @@ This project provides an intelligent decision-support platform capable of:
 
 ---
 
-## 🖥️ Demo
+##  Demo
 
 ### Dashboard
 ![Dashboard](./demo/dashboard.png)
@@ -56,7 +56,7 @@ This project provides an intelligent decision-support platform capable of:
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```
 Frontend (Next.js + TypeScript)
@@ -77,7 +77,7 @@ Frontend (Next.js + TypeScript)
 
 ---
 
-## 📈 Model Performance
+##  Model Performance
 
 | Pipeline | Model | Performance |
 |---|---|---|
@@ -89,7 +89,7 @@ Frontend (Next.js + TypeScript)
 
 ---
 
-## 🔬 Machine Learning Pipelines
+##  Machine Learning Pipelines
 
 ### 1. Maternal Health Risk Prediction
 
@@ -145,7 +145,7 @@ Frontend (Next.js + TypeScript)
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technologies |
 |---|---|
@@ -158,7 +158,7 @@ Frontend (Next.js + TypeScript)
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 FETAL-HEALTH/
@@ -206,7 +206,7 @@ FETAL-HEALTH/
 
 ---
 
-## ⚡ Technical Challenges
+##  Technical Challenges
 
 * Handling heterogeneous healthcare datasets
 * Training multiple ML/DL models under a unified workflow
@@ -217,7 +217,7 @@ FETAL-HEALTH/
 
 ---
 
-## 🔮 Future Enhancements
+##  Future Enhancements
 
 * RAG-powered AI Clinical Assistant
 * Medical guideline retrieval using Vector Databases
