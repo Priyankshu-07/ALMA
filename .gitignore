@@ -18,5 +18,5 @@ venv/
 
 # Specific Large Models
 Models/unet_abdomen.pth
-Backend/
+BACKEND/.env
 .env

@@ -43,6 +43,10 @@ class FHRRequest(BaseModel):
     uterineContractions: float
     lightDecelerations:  float
     severeDecelerations: float
+class ReportRequest(BaseModel):
+    maternal_result:    Optional[dict] = None
+    fhr_result:         Optional[dict] = None
+    ultrasound_results: Optional[List[dict]] = None
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/jpg"}
 def _read_image(file_bytes: bytes) -> np.ndarray:
     image = Image.open(io.BytesIO(file_bytes)).convert("RGB")
@@ -87,7 +91,7 @@ def _analyze_single_image(
         if result:
             fl_mm = result["FL_mm"]
             if gestational_age is not None and fl_mm is not None:
-                expected_fl = gestational_age * 1.8  
+                expected_fl = gestational_age * 1.8
                 if fl_mm < expected_fl * 0.85:
                     measurement_status = "Severely Underdeveloped"
                 elif fl_mm < expected_fl * 0.95:
@@ -125,7 +129,7 @@ def _analyze_single_image(
     }
 @app.get("/")
 def root():
-    return {"status": "ok", "message": "Fetal Health Analysis API v2 is running"}
+    return {"status": "ok", "message": "Fetal Health Analysis API is running"}
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
@@ -222,6 +226,22 @@ async def analyze_images(
         "total_images":    len(files),
         "results":         results,
     })
+@app.post("/generate-report")
+def generate_report(request: ReportRequest):
+    try:
+        combined = aggregate_results(
+            request.maternal_result,
+            request.fhr_result,
+            request.ultrasound_results,
+        )
+        report = generate_ai_report(combined)
+        return JSONResponse(content={
+            "status": "success",
+            "report": report,
+        })
+    except Exception as e:
+        logger.error(f"Report generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
