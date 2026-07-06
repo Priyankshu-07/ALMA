@@ -1,3 +1,5 @@
+from services.report_aggregator import aggregate_results
+from services.ai_report_service import generate_ai_report
 import io
 import logging
 from typing import List, Optional
