@@ -16,159 +16,137 @@ import {
   ClipboardList,
   Stethoscope,
   LightbulbIcon,
+  HeartPulse,
+  Baby,
 } from "lucide-react"
 import Link from "next/link"
+
+interface AIReport {
+  executive_summary: string
+  overall_status: string
+  maternal_analysis: { summary: string; key_findings: string[] }
+  fetal_heart_analysis: { summary: string; key_findings: string[] }
+  ultrasound_analysis: { summary: string; key_findings: string[] }
+  combined_interpretation: string
+  risk_indicators: string[]
+  recommendations: string[]
+  monitoring_priority: string
+}
+
+const API_BASE = "http://localhost:8000"
 
 export default function ReportPage() {
   const { maternalRisk, fhr, ultrasound } = useAppContext()
   const [isGenerating, setIsGenerating] = useState(false)
-  const [report, setReport] = useState<{
-    summary: string
-    riskAnalysis: string
-    recommendations: string[]
-    generatedAt: Date
-  } | null>(null)
+  const [report, setReport] = useState<AIReport | null>(null)
+  const [generatedAt, setGeneratedAt] = useState<Date | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const hasAnyData = maternalRisk.riskLevel || fhr.status || ultrasound.growthStatus
 
-  const generateReport = () => {
+  const buildRequestPayload = () => {
+    const maternal_result = maternalRisk.riskLevel
+      ? {
+          status: "success",
+          prediction: maternalRisk.riskLevel,
+          input_data: {
+            age: maternalRisk.age,
+            systolic_bp: maternalRisk.systolicBP,
+            diastolic_bp: maternalRisk.diastolicBP,
+            blood_sugar: maternalRisk.bloodSugar,
+            body_temp: maternalRisk.bodyTemperature,
+            heart_rate: maternalRisk.heartRate,
+          },
+        }
+      : null
+
+    const fhr_result = fhr.status
+      ? {
+          status: "success",
+          prediction: fhr.status,
+          input_data: {
+            baseline_value: fhr.baseline,
+            accelerations: fhr.accelerations,
+            fetal_movement: fhr.fetalMovement,
+            uterine_contractions: fhr.uterineContractions,
+            light_decelerations: fhr.lightDecelerations,
+            severe_decelerations: fhr.severeDecelerations,
+          },
+        }
+      : null
+
+    const ultrasound_results = ultrasound.detectedPart
+      ? [
+          {
+            plane_detected: ultrasound.detectedPart,
+            measurements: {
+              HC_mm: ultrasound.measurements.hc,
+              AC_mm: ultrasound.measurements.ac,
+              FL_mm: ultrasound.measurements.fl,
+            },
+            estimated_fetal_weight_grams: ultrasound.efw,
+            growth_status: ultrasound.growthStatus,
+            error: null,
+          },
+        ]
+      : []
+
+    return { maternal_result, fhr_result, ultrasound_results }
+  }
+
+  const generateReport = async () => {
     if (!hasAnyData) {
       toast.error("Please complete at least one analysis module first")
       return
     }
 
     setIsGenerating(true)
+    setError(null)
 
-    setTimeout(() => {
-      // Build comprehensive summary
-      const summaryParts: string[] = []
-      
-      if (maternalRisk.riskLevel) {
-        summaryParts.push(
-          `Maternal health assessment indicates ${maternalRisk.riskLevel} risk level. ` +
-          `Key vital signs: BP ${maternalRisk.systolicBP}/${maternalRisk.diastolicBP} mmHg, ` +
-          `heart rate ${maternalRisk.heartRate} bpm, blood glucose ${maternalRisk.bloodSugar} mg/dL.`
-        )
-      }
+    try {
+      const payload = buildRequestPayload()
 
-      if (fhr.status) {
-        const fhrDescription = fhr.status === "normal" 
-          ? "reassuring with adequate variability and accelerations"
-          : fhr.status === "suspect"
-          ? "showing some concerning features warranting closer monitoring"
-          : "abnormal with features suggesting possible fetal compromise"
-        summaryParts.push(
-          `Cardiotocography analysis shows ${fhr.status} pattern. ` +
-          `The fetal heart rate trace is ${fhrDescription}. ` +
-          `Baseline FHR: ${fhr.baseline} bpm with ${fhr.accelerations} accelerations noted.`
-        )
-      }
-
-      if (ultrasound.growthStatus) {
-        summaryParts.push(
-          `Ultrasound biometry reveals ${ultrasound.detectedPart?.toLowerCase()} measurements. ` +
-          `Estimated fetal weight: ${ultrasound.efw}g. ` +
-          `Growth assessment: ${ultrasound.growthStatus}. ` +
-          `HC: ${ultrasound.measurements.hc}mm, AC: ${ultrasound.measurements.ac}mm, FL: ${ultrasound.measurements.fl}mm.`
-        )
-      }
-
-      // Build risk analysis
-      const riskFactors: string[] = []
-      
-      if (maternalRisk.riskLevel === "high") {
-        riskFactors.push("High-risk maternal health indicators requiring close monitoring")
-      } else if (maternalRisk.riskLevel === "medium") {
-        riskFactors.push("Moderate maternal risk factors present")
-      }
-
-      if (fhr.status === "pathological") {
-        riskFactors.push("Abnormal FHR pattern indicating possible fetal distress")
-      } else if (fhr.status === "suspect") {
-        riskFactors.push("Suspicious FHR features requiring continued surveillance")
-      }
-
-      if (ultrasound.growthStatus === "underdeveloped") {
-        riskFactors.push("Fetal growth restriction (FGR) suspected - below 10th percentile")
-      } else if (ultrasound.growthStatus === "overgrowth") {
-        riskFactors.push("Large for gestational age (LGA) - macrosomia risk")
-      }
-
-      const riskAnalysis = riskFactors.length > 0
-        ? `Risk factors identified: ${riskFactors.join(". ")}. Comprehensive evaluation and multidisciplinary consultation may be warranted based on clinical presentation.`
-        : "No significant risk factors identified across all assessed parameters. Routine prenatal care protocols are appropriate for continued monitoring."
-
-      // Generate recommendations
-      const recommendations: string[] = []
-
-      if (maternalRisk.riskLevel === "high" || fhr.status === "pathological") {
-        recommendations.push("Consider immediate specialist consultation and possible hospitalization")
-        recommendations.push("Implement continuous fetal monitoring as clinically indicated")
-      }
-
-      if (maternalRisk.riskLevel === "high") {
-        recommendations.push("Review and optimize maternal medication regimen")
-        recommendations.push("Assess for preeclampsia and gestational diabetes")
-      }
-
-      if (fhr.status === "suspect" || fhr.status === "pathological") {
-        recommendations.push("Continue CTG monitoring with attention to decelerations")
-        recommendations.push("Consider biophysical profile assessment")
-      }
-
-      if (ultrasound.growthStatus === "underdeveloped") {
-        recommendations.push("Schedule serial growth ultrasounds every 2-3 weeks")
-        recommendations.push("Perform umbilical artery Doppler assessment")
-        recommendations.push("Evaluate placental function and amniotic fluid volume")
-      }
-
-      if (ultrasound.growthStatus === "overgrowth") {
-        recommendations.push("Screen for gestational diabetes if not already done")
-        recommendations.push("Discuss delivery planning and potential birth complications")
-      }
-
-      if (recommendations.length === 0) {
-        recommendations.push("Continue routine prenatal care schedule")
-        recommendations.push("Maintain healthy lifestyle with balanced nutrition")
-        recommendations.push("Schedule next routine growth ultrasound as per protocol")
-        recommendations.push("Monitor for any new symptoms and report promptly")
-      }
-
-      setReport({
-        summary: summaryParts.join(" "),
-        riskAnalysis,
-        recommendations,
-        generatedAt: new Date(),
+      const response = await fetch(`${API_BASE}/generate-report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       })
 
-      setIsGenerating(false)
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data.status !== "success") {
+        throw new Error("Report generation did not succeed")
+      }
+
+      setReport(data.report)
+      setGeneratedAt(new Date())
       toast.success("Report generated successfully")
-    }, 2000)
+    } catch (err) {
+      console.error("Report generation failed:", err)
+      setError("Failed to generate report. Please check the backend is running and try again.")
+      toast.error("Failed to generate report")
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const exportPDF = () => {
-    // In a real app, this would generate an actual PDF
     toast.success("Report exported to PDF")
   }
 
-  const getOverallRisk = () => {
-    const risks = [
-      maternalRisk.riskLevel,
-      fhr.status === "normal" ? "low" : fhr.status === "suspect" ? "medium" : fhr.status === "pathological" ? "high" : null,
-      ultrasound.growthStatus === "normal" ? "low" : ultrasound.growthStatus ? "high" : null,
-    ].filter(Boolean)
-
-    if (risks.includes("high")) return "high"
-    if (risks.includes("medium")) return "medium"
-    if (risks.length > 0) return "low"
-    return null
+  const priorityToStatusColor = (priority: string): "low" | "medium" | "high" => {
+    const p = priority.toLowerCase()
+    if (p === "urgent") return "high"
+    if (p === "elevated") return "medium"
+    return "low"
   }
-
-  const overallRisk = getOverallRisk()
 
   return (
     <div className="p-6 lg:p-8">
-      {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
@@ -212,7 +190,6 @@ export default function ReportPage() {
         </Card>
       ) : (
         <div className="space-y-6">
-          {/* Data Sources Summary */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Analysis Modules Completed</CardTitle>
@@ -274,20 +251,22 @@ export default function ReportPage() {
                   </Button>
                 )}
               </div>
+
+              {error && (
+                <p className="mt-3 text-sm text-destructive">{error}</p>
+              )}
             </CardContent>
           </Card>
 
-          {/* Report Content */}
-          {report && (
+          {report && generatedAt && (
             <div className="space-y-6">
-              {/* Report Header */}
               <Card className="border-2 border-primary/20">
                 <CardHeader className="border-b bg-muted/30">
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle>Fetal Health Assessment Report</CardTitle>
                       <CardDescription className="mt-1">
-                        Generated on {report.generatedAt.toLocaleDateString("en-US", {
+                        Generated on {generatedAt.toLocaleDateString("en-US", {
                           weekday: "long",
                           year: "numeric",
                           month: "long",
@@ -297,37 +276,96 @@ export default function ReportPage() {
                         })}
                       </CardDescription>
                     </div>
-                    {overallRisk && (
-                      <StatusBadge status={getStatusColor(overallRisk as "low" | "medium" | "high")} className="text-sm">
-                        {overallRisk === "low" ? "Low Risk" : overallRisk === "medium" ? "Moderate Risk" : "High Risk"}
-                      </StatusBadge>
-                    )}
+                    <StatusBadge status={getStatusColor(priorityToStatusColor(report.monitoring_priority))} className="text-sm">
+                      {report.monitoring_priority} Priority
+                    </StatusBadge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6 space-y-6">
-                  {/* Summary Section */}
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <ClipboardList className="h-5 w-5 text-primary" />
-                      <h3 className="text-lg font-semibold text-foreground">Summary</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Executive Summary</h3>
                     </div>
                     <p className="text-muted-foreground leading-relaxed pl-7">
-                      {report.summary}
+                      {report.executive_summary}
                     </p>
                   </div>
 
-                  {/* Risk Analysis Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <HeartPulse className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold text-foreground">Maternal Analysis</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
+                      {report.maternal_analysis.summary}
+                    </p>
+                    {report.maternal_analysis.key_findings.length > 0 && (
+                      <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
+                        {report.maternal_analysis.key_findings.map((f, i) => (
+                          <li key={i}>{f}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <Stethoscope className="h-5 w-5 text-primary" />
-                      <h3 className="text-lg font-semibold text-foreground">Risk Analysis</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Fetal Heart Rate Analysis</h3>
                     </div>
+                    <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
+                      {report.fetal_heart_analysis.summary}
+                    </p>
+                    {report.fetal_heart_analysis.key_findings.length > 0 && (
+                      <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
+                        {report.fetal_heart_analysis.key_findings.map((f, i) => (
+                          <li key={i}>{f}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Baby className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold text-foreground">Ultrasound Analysis</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
+                      {report.ultrasound_analysis.summary}
+                    </p>
+                    {report.ultrasound_analysis.key_findings.length > 0 && (
+                      <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
+                        {report.ultrasound_analysis.key_findings.map((f, i) => (
+                          <li key={i}>{f}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">Combined Interpretation</h3>
                     <p className="text-muted-foreground leading-relaxed pl-7">
-                      {report.riskAnalysis}
+                      {report.combined_interpretation}
                     </p>
                   </div>
 
-                  {/* Recommendations Section */}
+                  {report.risk_indicators.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Risk Indicators</h3>
+                      <ul className="space-y-2 pl-7">
+                        {report.risk_indicators.map((risk, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-xs font-medium text-destructive">
+                              !
+                            </span>
+                            <span className="text-muted-foreground">{risk}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <LightbulbIcon className="h-5 w-5 text-primary" />
@@ -347,13 +385,12 @@ export default function ReportPage() {
                 </CardContent>
               </Card>
 
-              {/* Disclaimer */}
               <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
                 <CardContent className="py-4">
                   <p className="text-sm text-amber-800 dark:text-amber-200">
-                    <strong>Clinical Disclaimer:</strong> This AI-generated report is intended for 
-                    decision support purposes only and should not replace clinical judgment. 
-                    All findings should be verified and interpreted by qualified healthcare 
+                    <strong>Clinical Disclaimer:</strong> This AI-generated report is intended for
+                    decision support purposes only and should not replace clinical judgment.
+                    All findings should be verified and interpreted by qualified healthcare
                     professionals in the context of the complete clinical picture.
                   </p>
                 </CardContent>

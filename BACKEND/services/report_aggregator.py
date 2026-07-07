@@ -4,9 +4,9 @@ def _safe(result: Optional[Dict[str, Any]]) -> Dict[str, Any]:
 def _compute_priority(maternal_result, fhr_result, ultrasound_results) -> str:
     score = 0
     maternal_pred = (maternal_result or {}).get("prediction", "") or ""
-    if maternal_pred.lower() == "high risk":
+    if maternal_pred.lower() == "high":
         score += 2
-    elif maternal_pred.lower() == "mid risk":
+    elif maternal_pred.lower() == "medium":
         score += 1
     fhr_pred = (fhr_result or {}).get("prediction", "") or ""
     if fhr_pred.lower() == "pathological":
@@ -14,14 +14,13 @@ def _compute_priority(maternal_result, fhr_result, ultrasound_results) -> str:
     elif fhr_pred.lower() == "suspect":
         score += 1
     for r in ultrasound_results or []:
-        status = (r.get("measurement_status") or "").lower()
         growth = (r.get("growth_status") or "").lower()
-        if "severely" in status or "underdeveloped" in growth:
+        if growth == "underdeveloped":
             score += 2
-        elif "mildly" in status:
+        elif growth == "overgrowth":
             score += 1
         if r.get("error"):
-            score += 1 
+            score += 1
     if score >= 5:
         return "URGENT"
     elif score >= 2:
@@ -33,7 +32,6 @@ def aggregate_results(
     ultrasound_results: Optional[list],
 ) -> Dict[str, Any]:
     ultrasound_results = ultrasound_results or []
-
     return {
         "maternal_analysis": _safe(maternal_result),
         "fhr_analysis": _safe(fhr_result),
