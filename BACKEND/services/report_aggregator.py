@@ -15,9 +15,11 @@ def _compute_priority(maternal_result, fhr_result, ultrasound_results) -> str:
         score += 1
     for r in ultrasound_results or []:
         growth = (r.get("growth_status") or "").lower()
-        if growth == "underdeveloped":
+        if "severely" in growth or growth == "underdeveloped":
             score += 2
-        elif growth == "overgrowth":
+        elif "mildly" in growth:
+            score += 1
+        elif "large for gestational age" in growth:
             score += 1
         if r.get("error"):
             score += 1
