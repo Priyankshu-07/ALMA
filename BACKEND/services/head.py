@@ -9,7 +9,6 @@ from albumentations.pytorch import ToTensorV2
 logger = logging.getLogger("fetal_health.head")
 _MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "Models" / "head.pth"
 IMG_SIZE         = 256
-PIXEL_SPACING_MM = 0.176  
 _DEVICE          = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 _HC_REFERENCE = {
     12: 70,  13: 84,  14: 98,  15: 112,
@@ -32,7 +31,6 @@ _transform = A.Compose([
 _model = None
 def _load_model() -> None:
     global _model
-
     if _model is not None:
         return
     if not _MODEL_PATH.exists():
@@ -55,13 +53,26 @@ def _load_model() -> None:
     logger.info(f"[head] U-Net (resnet34) loaded on {_DEVICE}")
 def _predict_mask(image_np: np.ndarray) -> np.ndarray:
     _load_model()
+    original_h, original_w = image_np.shape[:2]
     augmented = _transform(image=image_np)
-    tensor    = augmented["image"].unsqueeze(0).to(_DEVICE)  
+    tensor = augmented["image"].unsqueeze(0).to(_DEVICE)
     with torch.no_grad():
-        output = _model(tensor)                        
-        pred   = torch.sigmoid(output)
-        mask   = (pred > 0.5).squeeze().cpu().numpy().astype(np.uint8)
-    return mask  
+        output = _model(tensor)
+        pred = torch.sigmoid(output)
+        mask = (
+            (pred > 0.5)
+            .squeeze()
+            .cpu()
+            .numpy()
+            .astype(np.uint8)
+        )
+
+    mask = cv2.resize(
+        mask,
+        (original_w, original_h),
+        interpolation=cv2.INTER_NEAREST,
+    )
+    return mask
 def _mask_to_hc_mm(mask: np.ndarray, pixel_spacing: float) -> float | None:
     kernel = np.ones((5, 5), np.uint8)
     mask   = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
@@ -84,7 +95,6 @@ def _mask_to_hc_mm(mask: np.ndarray, pixel_spacing: float) -> float | None:
     return hc_mm
 def _classify_hc(hc_mm: float, gestational_age: int) -> str:
     ga = max(12, min(42, gestational_age))
-
     if ga in _HC_REFERENCE:
         expected = _HC_REFERENCE[ga]
     else:
@@ -105,20 +115,33 @@ def _classify_hc(hc_mm: float, gestational_age: int) -> str:
 def measure_head_circumference(
     image_np: np.ndarray,
     gestational_age: int = None,
-    pixel_spacing: float = PIXEL_SPACING_MM,
+    pixel_spacing: float = None,
 ) -> dict | None:
-
     try:
-        mask  = _predict_mask(image_np)
-        hc_mm = _mask_to_hc_mm(mask, pixel_spacing)
+        if pixel_spacing is None or pixel_spacing <= 0:
+            logger.warning("[head] Valid pixel spacing is required")
+            return None
+        mask = _predict_mask(image_np)
+        hc_mm = _mask_to_hc_mm(
+            mask,
+            pixel_spacing,
+        )
         if hc_mm is None:
             return None
         status = "Unknown"
         if gestational_age is not None:
-            status = _classify_hc(hc_mm, gestational_age)
-        logger.info(f"[head] HC={hc_mm:.2f}mm | GA={gestational_age}w | Status={status}")
+            status = _classify_hc(
+                hc_mm,
+                gestational_age,
+            )
+        logger.info(
+            f"[head] HC={hc_mm:.2f}mm | "
+            f"GA={gestational_age}w | "
+            f"Pixel spacing={pixel_spacing}mm/px | "
+            f"Status={status}"
+        )
         return {
-            "HC_mm":  round(hc_mm, 2),
+            "HC_mm": round(hc_mm, 2),
             "status": status,
         }
     except Exception as e:
