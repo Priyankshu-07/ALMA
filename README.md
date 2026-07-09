@@ -84,8 +84,8 @@ Frontend (Next.js + TypeScript)
 | Maternal Risk Prediction | XGBoost | 81.77% Test Accuracy |
 | CTG Fetal Health Analysis | ANN | 82.39% Test Accuracy |
 | Ultrasound Plane Classification | ResNet50 | 93.0% Accuracy |
-| Fetal Head & Abdomen Segmentation | U-Net | 95.9% IoU |
-| Fetal Head & Abdomen Segmentation | U-Net | 97.9% Dice Score |
+| Fetal Head | U-Net | 95.9% IoU |
+| Fetal  Abdomen Segmentation | U-Net | 86.41% Dice Score |
 
 ---
 
