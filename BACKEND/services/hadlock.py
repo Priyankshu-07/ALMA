@@ -23,12 +23,11 @@ def estimate_fetal_weight(
     formula_used = None
     if hc_cm and ac_cm and fl_cm:
         log_efw = (
-            1.3596
-            - 0.00386 * ac_cm * fl_cm
-            + 0.0064  * hc_cm
-            + 0.00061 * hc_cm * ac_cm
-            + 0.0424  * ac_cm
-            + 0.174   * fl_cm
+            1.326
+            - 0.00326 * ac_cm * fl_cm
+            + 0.0107  * hc_cm
+            + 0.0438  * ac_cm
+            + 0.158   * fl_cm
         )
         formula_used = "Hadlock HC+AC+FL"
     elif ac_cm and fl_cm:
@@ -48,6 +47,7 @@ def estimate_fetal_weight(
         )
         formula_used = "Hadlock HC+AC"
     elif ac_cm:
+        # NOTE: source formula unverified — see note below.
         log_efw = (
             1.6961
             + 0.02253 * ac_cm
