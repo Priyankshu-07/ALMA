@@ -187,7 +187,7 @@ export default function MaternalRiskPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="bloodSugar">Blood Sugar (mg/dL)</Label>
+                <Label htmlFor="bloodSugar">Blood Sugar (mmol/L)</Label>
                 <Input
                   id="bloodSugar"
                   type="number"
@@ -197,7 +197,7 @@ export default function MaternalRiskPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bodyTemperature">Body Temperature (°C)</Label>
+                <Label htmlFor="bodyTemperature">Body Temperature (°F)</Label>
                 <Input
                   id="bodyTemperature"
                   type="number"
