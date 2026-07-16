@@ -13,7 +13,6 @@ from services.maternal import predict_maternal_risk
 from services.fhr import predict_fhr
 from services.classify import classify_plane
 from services.head import measure_head_circumference
-from services.abdomen import measure_abdominal_circumference
 from services.femur import measure_femur_length
 from services.hadlock import estimate_fetal_weight, classify_efw
 logging.basicConfig(
@@ -71,7 +70,7 @@ def _analyze_single_image(
             "error": (
                 f"Could not identify a measurable fetal plane. "
                 f"Detected '{raw_label}' with {confidence*100:.1f}% confidence. "
-                f"Please upload a HEAD, ABDOMEN, or FEMUR image."
+                f"Please upload a HEAD or FEMUR image."
             ),
         }
     hc_mm, ac_mm, fl_mm     = None, None, None
@@ -80,11 +79,6 @@ def _analyze_single_image(
         result = measure_head_circumference(image_np, gestational_age)
         if result:
             hc_mm              = result["HC_mm"]
-            measurement_status = result["status"]
-    elif plane == "ABDOMEN":
-        result = measure_abdominal_circumference(image_np, gestational_age)
-        if result:
-            ac_mm              = result["AC_mm"]
             measurement_status = result["status"]
     elif plane == "FEMUR":
         result = measure_femur_length(image_np)
