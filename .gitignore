@@ -20,3 +20,4 @@ venv/
 Models/unet_abdomen.pth
 BACKEND/.env
 .env
+Notebooks/FetalHealthRate(ANN).ipynb
