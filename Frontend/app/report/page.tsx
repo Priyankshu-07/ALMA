@@ -24,12 +24,30 @@ import Link from "next/link"
 interface AIReport {
   executive_summary: string
   overall_status: string
-  maternal_analysis: { summary: string; key_findings: string[] }
-  fetal_heart_analysis: { summary: string; key_findings: string[] }
-  ultrasound_analysis: { summary: string; key_findings: string[] }
+
+  maternal_analysis?: {
+    summary: string
+    key_findings: string[]
+  } | null
+
+  fetal_heart_analysis?: {
+    summary: string
+    key_findings: string[]
+  } | null
+
+  ultrasound_analysis?: {
+    summary: string
+    key_findings: string[]
+  } | null
+
   combined_interpretation: string
+
   risk_indicators: string[]
+
   recommendations: string[]
+
+  possible_risks_if_ignored?: string
+
   monitoring_priority: string
 }
 
@@ -292,63 +310,71 @@ export default function ReportPage() {
                     </p>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <HeartPulse className="h-5 w-5 text-primary" />
-                      <h3 className="text-lg font-semibold text-foreground">Maternal Analysis</h3>
+                  {report.maternal_analysis && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <HeartPulse className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-semibold text-foreground">Maternal Analysis</h3>
+                      </div>
+                      <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
+                        {report.maternal_analysis.summary}
+                      </p>
+                      {report.maternal_analysis.key_findings.length > 0 && (
+                        <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
+                          {report.maternal_analysis.key_findings.map((f, i) => (
+                            <li key={i}>{f}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
-                    <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
-                      {report.maternal_analysis.summary}
-                    </p>
-                    {report.maternal_analysis.key_findings.length > 0 && (
-                      <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
-                        {report.maternal_analysis.key_findings.map((f, i) => (
-                          <li key={i}>{f}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                  )}
 
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Stethoscope className="h-5 w-5 text-primary" />
-                      <h3 className="text-lg font-semibold text-foreground">Fetal Heart Rate Analysis</h3>
+                  {report.fetal_heart_analysis && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Stethoscope className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-semibold text-foreground">Fetal Heart Rate Analysis</h3>
+                      </div>
+                      <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
+                        {report.fetal_heart_analysis.summary}
+                      </p>
+                      {report.fetal_heart_analysis.key_findings.length > 0 && (
+                        <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
+                          {report.fetal_heart_analysis.key_findings.map((f, i) => (
+                            <li key={i}>{f}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
-                    <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
-                      {report.fetal_heart_analysis.summary}
-                    </p>
-                    {report.fetal_heart_analysis.key_findings.length > 0 && (
-                      <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
-                        {report.fetal_heart_analysis.key_findings.map((f, i) => (
-                          <li key={i}>{f}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                  )}
 
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Baby className="h-5 w-5 text-primary" />
-                      <h3 className="text-lg font-semibold text-foreground">Ultrasound Analysis</h3>
+                  {report.ultrasound_analysis && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Baby className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-semibold text-foreground">Ultrasound Analysis</h3>
+                      </div>
+                      <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
+                        {report.ultrasound_analysis.summary}
+                      </p>
+                      {report.ultrasound_analysis.key_findings.length > 0 && (
+                        <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
+                          {report.ultrasound_analysis.key_findings.map((f, i) => (
+                            <li key={i}>{f}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
-                    <p className="text-muted-foreground leading-relaxed pl-7 mb-2">
-                      {report.ultrasound_analysis.summary}
-                    </p>
-                    {report.ultrasound_analysis.key_findings.length > 0 && (
-                      <ul className="space-y-1 pl-7 list-disc list-inside text-muted-foreground">
-                        {report.ultrasound_analysis.key_findings.map((f, i) => (
-                          <li key={i}>{f}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                  )}
 
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-3">Combined Interpretation</h3>
-                    <p className="text-muted-foreground leading-relaxed pl-7">
-                      {report.combined_interpretation}
-                    </p>
-                  </div>
+                  {report.combined_interpretation && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Combined Interpretation</h3>
+                      <p className="text-muted-foreground leading-relaxed pl-7">
+                        {report.combined_interpretation}
+                      </p>
+                    </div>
+                  )}
 
                   {report.risk_indicators.length > 0 && (
                     <div>
@@ -382,6 +408,17 @@ export default function ReportPage() {
                       ))}
                     </ul>
                   </div>
+
+                  {report.possible_risks_if_ignored && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold text-red-600 mb-3">
+                        Possible Risks if Recommendations are Ignored
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {report.possible_risks_if_ignored}
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
