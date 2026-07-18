@@ -68,7 +68,7 @@ Frontend (Next.js + TypeScript)
   ├── CTG Analysis (ANN)
   ├── Ultrasound Classification (ResNet50)
   ├── Head Segmentation (U-Net)
-  └── Abdomen Segmentation (U-Net)
+  
           ↓
     Prediction Results
           ↓
@@ -85,7 +85,7 @@ Frontend (Next.js + TypeScript)
 | CTG Fetal Health Analysis | ANN | 82.39% Test Accuracy |
 | Ultrasound Plane Classification | ResNet50 | 93.0% Accuracy |
 | Fetal Head | U-Net | 95.66% IoU |
-| Fetal  Abdomen Segmentation | U-Net | 86.41% Dice Score |
+
 
 ---
 
@@ -133,15 +133,6 @@ Frontend (Next.js + TypeScript)
 
 **Applications:** Head circumference estimation, Growth monitoring
 
----
-
-### 5. Fetal Abdomen Segmentation
-
-**Objective:** Segment fetal abdominal structures from ultrasound scans.
-
-**Model:** U-Net
-
-**Applications:** Abdominal circumference estimation, Growth assessment
 
 ---
 
@@ -170,7 +161,6 @@ FETAL-HEALTH/
 │       ├── fhr.py
 │       ├── classify.py
 │       ├── head.py
-│       ├── abdomen.py
 │       ├── femur.py
 │       └── hadlock.py
 │
@@ -186,13 +176,12 @@ FETAL-HEALTH/
 │   ├── fetal_health_ann_model.h5
 │   ├── resnet50_fetal_planes.pth
 │   ├── head.pth
-│   └── unet_abdomen.pth
 │
 ├── Notebooks/
 │   ├── MHRP_XGBoost.ipynb
 │   ├── FetalHealthrate.ipynb
 │   ├── UltrasoundImage+femur.ipynb
-│   └── Head&Abdomen.ipynb
+│   └── Head.ipynb
 │
 ├── demo/
 │   ├── dashboard.png
