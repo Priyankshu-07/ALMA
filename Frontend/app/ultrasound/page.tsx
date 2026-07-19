@@ -59,7 +59,6 @@ const getPlaneIcon = (plane: string) => {
 const getPlaneLabel = (plane: string) => {
   switch (plane) {
     case "HEAD":    return "Fetal Head (HC)"
-    case "ABDOMEN": return "Fetal Abdomen (AC)"
     case "FEMUR":   return "Femur Length (FL)"
     default:        return "Unrecognized Plane"
   }
