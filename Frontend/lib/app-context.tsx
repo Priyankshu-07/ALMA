@@ -30,11 +30,9 @@ export interface UltrasoundData {
   detectedPart: "HEAD" | "ABDOMEN" | "FEMUR" | null
   measurements: {
     hc: number | null // Head Circumference
-    ac: number | null // Abdominal Circumference
     fl: number | null // Femur Length
   }
-  efw: number | null // Estimated Fetal Weight
-  growthStatus: "normal" | "underdeveloped" | "overgrowth" | null
+  developmentStatus: string | null
 }
 
 interface AppContextType {
@@ -76,11 +74,9 @@ const defaultUltrasound: UltrasoundData = {
   detectedPart: null,
   measurements: {
     hc: null,
-    ac: null,
     fl: null,
   },
-  efw: null,
-  growthStatus: null,
+  developmentStatus: null,
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)

@@ -3,11 +3,14 @@ import json
 import logging
 from dotenv import load_dotenv
 from groq import Groq
+
 load_dotenv()
 logger = logging.getLogger("fetal_health")
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise RuntimeError("GROQ_API_KEY not found in .env")
+
 client = Groq(api_key=GROQ_API_KEY)
 
 
@@ -149,9 +152,17 @@ def _validate(report: dict, combined_data: dict) -> dict:
 
 
 def generate_ai_report(combined_data: dict) -> dict:
-    has_maternal = combined_data.get("maternal_result") is not None
-    has_fhr = combined_data.get("fhr_result") is not None
-    has_ultrasound = len(combined_data.get("ultrasound_results", [])) > 0
+    has_maternal = (
+        combined_data.get("maternal_analysis", {}).get("prediction") is not None
+    )
+
+    has_fhr = (
+        combined_data.get("fhr_analysis", {}).get("prediction") is not None
+    )
+
+    has_ultrasound = len(
+        combined_data.get("ultrasound_analysis", [])
+    ) > 0
 
     prompt = _build_prompt(combined_data, has_maternal, has_fhr, has_ultrasound)
     try:

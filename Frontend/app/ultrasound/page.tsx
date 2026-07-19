@@ -13,7 +13,6 @@ import {
   Upload,
   Scan,
   Ruler,
-  Scale,
   TrendingUp,
   X,
   Plus,
@@ -37,12 +36,10 @@ interface ImageResult {
   confidence: number
   measurements: {
     HC_mm: number | null
-    AC_mm: number | null
     FL_mm: number | null
   }
   measurement_status: string | null
-  estimated_fetal_weight_grams: number | null
-  growth_status: string | null
+  development_status: string | null
   error: string | null
 }
 
@@ -66,7 +63,6 @@ const getPlaneLabel = (plane: string) => {
 
 const getMeasurementLabel = (result: ImageResult) => {
   if (result.measurements.HC_mm) return { label: "HC", value: result.measurements.HC_mm }
-  if (result.measurements.AC_mm) return { label: "AC", value: result.measurements.AC_mm }
   if (result.measurements.FL_mm) return { label: "FL", value: result.measurements.FL_mm }
   return null
 }
@@ -161,11 +157,9 @@ export default function UltrasoundPage() {
           detectedPart: firstValid.plane_detected,
           measurements: {
             hc: firstValid.measurements.HC_mm,
-            ac: firstValid.measurements.AC_mm,
             fl: firstValid.measurements.FL_mm,
           },
-          efw: firstValid.estimated_fetal_weight_grams,
-          growthStatus: firstValid.growth_status,
+          developmentStatus: firstValid.development_status,
         })
       }
 
@@ -187,9 +181,8 @@ export default function UltrasoundPage() {
       imageUrl: null,
       maskUrl: null,
       detectedPart: null,
-      measurements: { hc: null, ac: null, fl: null },
-      efw: null,
-      growthStatus: null,
+      measurements: { hc: null, fl: null },
+      developmentStatus: null,
     })
   }
 
@@ -409,35 +402,22 @@ export default function UltrasoundPage() {
                         ) : null
                       })()}
 
-                      {/* EFW + Growth Status */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-lg bg-muted/50 p-3">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Scale className="h-3.5 w-3.5 text-muted-foreground" />
-                            <p className="text-xs text-muted-foreground">Est. Fetal Weight</p>
-                          </div>
-                          <p className="text-xl font-bold text-foreground">
-                            {result.estimated_fetal_weight_grams
-                              ? `${result.estimated_fetal_weight_grams}g`
-                              : "--"}
-                          </p>
+                      {/* Development Status */}
+                      <div className="rounded-lg bg-muted/50 p-3">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground">Development Status</p>
                         </div>
-                        <div className="rounded-lg bg-muted/50 p-3">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
-                            <p className="text-xs text-muted-foreground">Growth Status</p>
-                          </div>
-                          {result.growth_status ? (
-                            <StatusBadge status={getStatusColor(
-                              result.growth_status === "Normal" ? "normal" :
-                              result.growth_status.includes("Severely") ? "high" : "medium"
-                            )}>
-                              {result.growth_status}
-                            </StatusBadge>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">--</p>
-                          )}
-                        </div>
+                        {result.development_status ? (
+                          <StatusBadge status={getStatusColor(
+                            result.development_status === "Normal" ? "normal" :
+                            result.development_status.includes("Severely") ? "high" : "medium"
+                          )}>
+                            {result.development_status}
+                          </StatusBadge>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">--</p>
+                        )}
                       </div>
                     </>
                   )}

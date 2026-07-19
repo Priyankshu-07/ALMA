@@ -60,7 +60,7 @@ export default function ReportPage() {
   const [generatedAt, setGeneratedAt] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const hasAnyData = maternalRisk.riskLevel || fhr.status || ultrasound.growthStatus
+  const hasAnyData = maternalRisk.riskLevel || fhr.status || ultrasound.developmentStatus
 
   const buildRequestPayload = () => {
     const maternal_result = maternalRisk.riskLevel
@@ -99,11 +99,9 @@ export default function ReportPage() {
             plane_detected: ultrasound.detectedPart,
             measurements: {
               HC_mm: ultrasound.measurements.hc,
-              AC_mm: ultrasound.measurements.ac,
               FL_mm: ultrasound.measurements.fl,
             },
-            estimated_fetal_weight_grams: ultrasound.efw,
-            growth_status: ultrasound.growthStatus,
+            development_status: ultrasound.developmentStatus,
             error: null,
           },
         ]
@@ -234,13 +232,13 @@ export default function ReportPage() {
                     FHR Analysis
                   </span>
                 </div>
-                <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${ultrasound.growthStatus ? "border-primary/50 bg-primary/5" : "border-muted"}`}>
-                  {ultrasound.growthStatus ? (
+                <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${ultrasound.developmentStatus ? "border-primary/50 bg-primary/5" : "border-muted"}`}>
+                  {ultrasound.developmentStatus ? (
                     <CheckCircle className="h-4 w-4 text-primary" />
                   ) : (
                     <AlertCircle className="h-4 w-4 text-muted-foreground" />
                   )}
-                  <span className={ultrasound.growthStatus ? "text-foreground" : "text-muted-foreground"}>
+                  <span className={ultrasound.developmentStatus ? "text-foreground" : "text-muted-foreground"}>
                     Ultrasound
                   </span>
                 </div>
