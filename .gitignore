@@ -20,4 +20,6 @@ venv/
 Models/unet_abdomen.pth
 BACKEND/.env
 .env
-Notebooks/FetalHealthRate(ANN).ipynb
+
+# Ignored Notebooks
+Notebooks/MHRP_XGBoost.ipynb
