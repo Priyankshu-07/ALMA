@@ -195,6 +195,11 @@ FETAL-HEALTH/
 
 ---
 
+FLOW DIAGRAM 
+
+         <img width="2040" height="1830" alt="fetal_health_flowchart" src="https://github.com/user-attachments/assets/051c639e-0638-45ba-bb13-73a7f2ed95db" />
+
+
 ##  Technical Challenges
 
 * Handling heterogeneous healthcare datasets
