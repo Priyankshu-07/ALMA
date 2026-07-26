@@ -214,7 +214,7 @@ export default function UltrasoundPage() {
             <CardHeader>
               <CardTitle>Upload Ultrasound Images</CardTitle>
               <CardDescription>
-                Upload up to 3 fetal ultrasound images (HEAD, ABDOMEN, FEMUR)
+                Upload up to 3 fetal ultrasound images (HEAD, FEMUR)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -226,14 +226,14 @@ export default function UltrasoundPage() {
                 <Input
                   id="gestationalAge"
                   type="number"
-                  min={12}
-                  max={42}
+                  min={4}
+                  max={32}
                   placeholder="e.g., 24"
                   value={gestationalAge}
                   onChange={(e) => setGestationalAge(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Enter weeks of pregnancy (12–42 weeks)
+                  Enter weeks of pregnancy (4-30 weeks)
                 </p>
               </div>
 

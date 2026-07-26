@@ -54,6 +54,10 @@ This project provides an intelligent decision-support platform capable of:
 ![AI Clinical Report](./demo/ai_report.png)
 > Comprehensive AI-generated clinical report combining results from all analysis modules.
 
+     FLOW DIAGRAM 
+![FLOW CHART ](./demo/fetal_health_flowchart.png)
+
+
 ---
 
 ##  System Architecture
@@ -191,12 +195,6 @@ FETAL-HEALTH/
 │   └── ai_report.png
 │
 └── README.md
-```
-
----
-
-
-
 ##  Technical Challenges
 
 * Handling heterogeneous healthcare datasets

@@ -3,20 +3,20 @@
 import { useAppContext } from "@/lib/app-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatusBadge, getStatusColor } from "@/components/status-badge"
-import { HeartPulse, Activity, Scale, TrendingUp, AlertCircle, CheckCircle2 } from "lucide-react"
+import { HeartPulse, Activity, TrendingUp, AlertCircle, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function DashboardPage() {
   const { maternalRisk, fhr, ultrasound } = useAppContext()
 
-  const hasAnyData = maternalRisk.riskLevel || fhr.status || ultrasound.growthStatus
+  const hasAnyData = maternalRisk.riskLevel || fhr.status || ultrasound.developmentStatus
 
   const getOverallStatus = () => {
     const statuses = [
       maternalRisk.riskLevel,
       fhr.status === "normal" ? "low" : fhr.status === "suspect" ? "medium" : fhr.status === "pathological" ? "high" : null,
-      ultrasound.growthStatus === "normal" ? "low" : ultrasound.growthStatus ? "high" : null,
+      ultrasound.developmentStatus === "Normal" ? "low" : ultrasound.developmentStatus ? "high" : null,
     ].filter(Boolean)
 
     if (statuses.length === 0) return null
@@ -86,7 +86,7 @@ export default function DashboardPage() {
       </Card>
 
       {/* Status Cards Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Maternal Risk Card */}
         <Link href="/maternal-risk">
           <Card className="h-full transition-all hover:shadow-md hover:border-primary/30 cursor-pointer">
@@ -143,50 +143,25 @@ export default function DashboardPage() {
           </Card>
         </Link>
 
-        {/* Estimated Fetal Weight Card */}
+        {/* Development Status Card */}
         <Link href="/ultrasound">
           <Card className="h-full transition-all hover:shadow-md hover:border-primary/30 cursor-pointer">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Fetal Weight (EFW)
-                </CardTitle>
-                <Scale className="h-4 w-4 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              {ultrasound.efw ? (
-                <>
-                  <p className="text-2xl font-semibold text-foreground">
-                    {ultrasound.efw}g
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Estimated from ultrasound measurements
-                  </p>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">Not measured</p>
-              )}
-            </CardContent>
-          </Card>
-        </Link>
-
-        {/* Growth Status Card */}
-        <Link href="/ultrasound">
-          <Card className="h-full transition-all hover:shadow-md hover:border-primary/30 cursor-pointer">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Growth Status
+                  Development Status
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-primary" />
               </div>
             </CardHeader>
             <CardContent>
-              {ultrasound.growthStatus ? (
+              {ultrasound.developmentStatus ? (
                 <>
-                  <StatusBadge status={getStatusColor(ultrasound.growthStatus)}>
-                    {ultrasound.growthStatus.charAt(0).toUpperCase() + ultrasound.growthStatus.slice(1)}
+                  <StatusBadge status={getStatusColor(
+                    ultrasound.developmentStatus === "Normal" ? "low" :
+                    ultrasound.developmentStatus.includes("Severely") ? "high" : "medium"
+                  )}>
+                    {ultrasound.developmentStatus}
                   </StatusBadge>
                   <p className="mt-2 text-xs text-muted-foreground">
                     Based on biometric measurements
