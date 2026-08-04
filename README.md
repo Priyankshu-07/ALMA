@@ -53,6 +53,9 @@ This project provides an intelligent decision-support platform capable of:
 ### AI Clinical Report
 ![AI Clinical Report](./demo/ai_report.png)
 > Comprehensive AI-generated clinical report combining results from all analysis modules.
+>
+> DEMO VIDEO LINK
+https://drive.google.com/file/d/1tDOiBD4-HCEmggOax7Q0tDK33VmeIyC7/view?usp=drive_link
 
      FLOW DIAGRAM 
 ![FLOW CHART ](./demo/fetal_health_flowchart.png)
