@@ -1,149 +1,149 @@
-#  Fetal Health Analysis using Machine Learning & Deep Learning
+<div align="center">
 
-An end-to-end healthcare AI platform that combines machine learning, deep learning, computer vision, and full-stack web development to assist in maternal and fetal health assessment.
+#  Fetal Health Analysis Platform
+### AI-Powered Clinical Decision Support for Maternal & Fetal Health
 
-The system analyzes clinical data, fetal cardiotocography (CTG) records, and ultrasound images to provide risk predictions, fetal health classification, anatomical plane detection, and medical image segmentation through a unified web interface.
+*A full-stack healthcare AI system combining machine learning, deep learning, computer vision, and modern web engineering to support prenatal risk assessment.*
+
+[![Next.js](https://img.shields.io/badge/Frontend-Next.js-black?logo=next.js)](#tech-stack)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](#tech-stack)
+[![PyTorch](https://img.shields.io/badge/DL-PyTorch-EE4C2C?logo=pytorch)](#tech-stack)
+[![TensorFlow](https://img.shields.io/badge/DL-TensorFlow-FF6F00?logo=tensorflow)](#tech-stack)
+[![License](https://img.shields.io/badge/License-MIT-green)](#license)
+
+[Demo Video](https://drive.google.com/file/d/1tDOiBD4-HCEmggOax7Q0tDK33VmeIyC7/view?usp=drive_link) · [Features](#-project-highlights) · [Architecture](#-system-architecture) · [Pipelines](#-machine-learning--deep-learning-pipelines) · [Tech Stack](#-tech-stack)
+
+</div>
+
+---
+
+##  Overview
+
+Prenatal care depends on interpreting several independent data sources — maternal vitals, fetal heart-rate monitoring, and ultrasound imaging — often across disconnected tools. **This platform unifies all three into a single clinical dashboard**, using four purpose-built ML/DL models to turn raw clinical data into actionable, real-time risk assessments.
+
+Built end-to-end (data pipeline → model training → inference services → production UI), the project demonstrates the full lifecycle of applied AI: from a Kaggle-grade research notebook to a deployable, API-driven web application.
+
+> Originally developed as a capstone project — rated **9.1/10** — and since refined with corrected data pipelines, class-imbalance handling, and clinical-report generation.
 
 ---
 
 ##  Project Highlights
 
-* Full-stack healthcare AI platform built with **Next.js, TypeScript, FastAPI, and Python**
-* **4 independent ML/DL pipelines** integrated into a single clinical dashboard
-* **Maternal Risk Prediction** using XGBoost
-* **CTG Fetal Health Classification** using Artificial Neural Networks (ANN)
-* **Ultrasound Plane Classification** using ResNet50 with Grad-CAM explainability
-* **Fetal Head and Abdomen Segmentation** using U-Net
-* Modular FastAPI services for real-time model inference
+- **Full-stack healthcare AI platform** — Next.js + TypeScript frontend, FastAPI + Python backend
+- **4 independent ML/DL pipelines** unified into one clinical dashboard
+- **Maternal Risk Prediction** — XGBoost classifier on clinical vitals
+- **CTG Fetal Health Classification** — custom ANN trained on cardiotocography signals, with deliberate class-imbalance tuning for clinical safety
+- **Ultrasound Plane Classification** — ResNet50 (transfer learning) with **Grad-CAM explainability**, so predictions are interpretable, not black-box
+- **Fetal Head Segmentation** — U-Net for pixel-level anatomical structure detection
+- **Modular FastAPI microservices** for real-time, independently-scalable model inference
+- **AI-generated clinical reports** synthesizing outputs from all four pipelines into one summary
 
 ---
 
 ##  Problem Statement
 
-Prenatal healthcare often requires the interpretation of multiple clinical data sources including maternal vitals, fetal heart monitoring records, and ultrasound scans.
+Prenatal healthcare requires synthesizing multiple, heterogeneous data types — clinical vitals, time-series fetal heart monitoring, and medical imaging — to make timely risk decisions. This platform acts as an intelligent decision-support layer that:
 
-This project provides an intelligent decision-support platform capable of:
-
-* Predicting maternal health risk
-* Classifying fetal health states
-* Detecting fetal anatomical planes from ultrasound scans
-* Segmenting fetal anatomical structures
-* Delivering results through a modern web-based interface
+- Predicts maternal health risk from vitals
+- Classifies fetal health status from CTG data
+- Detects fetal anatomical planes in ultrasound scans
+- Segments fetal anatomical structures for biometric measurement
+- Delivers every result through a unified, modern web interface
 
 ---
 
 ##  Demo
 
-### Dashboard
-![Dashboard](./demo/dashboard.png)
-> Overview of fetal health analysis results with combined assessment from all modules.
+| | |
+|---|---|
+| **Dashboard** — combined assessment across all modules | ![Dashboard](./demo/dashboard.png) |
+| **Maternal Risk Prediction** — AI-powered classification from vitals (Age, BP, Blood Sugar, Heart Rate, Body Temp) | ![Maternal Risk Prediction](./demo/maternal_risk.png) |
+| **Fetal Heart Rate (CTG) Analysis** — classify fetal health from Baseline FHR, Accelerations, Decelerations | ![FHR Analysis](./demo/fhr_analysis.png) |
+| **Ultrasound Image Analysis** — upload Head / Abdomen / Femur scans for plane classification & biometry | ![Ultrasound Analysis](./demo/ultrasound.png) |
+| **AI Clinical Report** — consolidated report across all modules | ![AI Clinical Report](./demo/ai_report.png) |
 
-### Maternal Risk Prediction
-![Maternal Risk Prediction](./demo/maternal_risk.png)
-> Input maternal vitals (Age, BP, Blood Sugar, Heart Rate, Body Temperature) for AI-powered risk classification.
+ **[Watch the full demo video](https://drive.google.com/file/d/1tDOiBD4-HCEmggOax7Q0tDK33VmeIyC7/view?usp=drive_link)**
 
-### Fetal Heart Rate (CTG) Analysis
-![FHR Analysis](./demo/fhr_analysis.png)
-> Enter CTG parameters like Baseline FHR, Accelerations, Decelerations to classify fetal health status.
-
-### Ultrasound Image Analysis
-![Ultrasound Analysis](./demo/ultrasound.png)
-> Upload fetal ultrasound images (Head, Abdomen, Femur) for plane classification and biometry.
-
-### AI Clinical Report
-![AI Clinical Report](./demo/ai_report.png)
-> Comprehensive AI-generated clinical report combining results from all analysis modules.
->
-> DEMO VIDEO LINK
-https://drive.google.com/file/d/1tDOiBD4-HCEmggOax7Q0tDK33VmeIyC7/view?usp=drive_link
-
-     FLOW DIAGRAM 
-![FLOW CHART ](./demo/fetal_health_flowchart.png)
-
+![Flow Chart](./demo/fetal_health_flowchart.png)
 
 ---
 
 ##  System Architecture
 
 ```
-Frontend (Next.js + TypeScript)
-          ↓
-    FastAPI Backend
-          ↓
-  ML / DL Inference Services
-  ├── Maternal Risk (XGBoost)
-  ├── CTG Analysis (ANN)
-  ├── Ultrasound Classification (ResNet50)
-  ├── Head Segmentation (U-Net)
-  
-          ↓
-    Prediction Results
-          ↓
-  Interactive Clinical Dashboard
+                     ┌─────────────────────────────┐
+                     │   Frontend (Next.js + TS)   │
+                     │   Clinical Dashboard UI     │
+                     └──────────────┬──────────────┘
+                                    │  REST API
+                                    ▼
+                     ┌─────────────────────────────┐
+                     │      FastAPI Backend        │
+                     │   Request routing & I/O     │
+                     └──────────────┬──────────────┘
+                                    │
+              ┌─────────────────────┼─────────────────────┐
+              ▼                     ▼                     ▼
+   ┌────────────────────┐ ┌────────────────────┐  ┌────────────────────┐
+   │  Maternal Risk     │ │  CTG Analysis      │  │  Ultrasound        │
+   │  (XGBoost)         │ │  (ANN)             │  │  Classification    │
+   │                    │ │                    │  | (ResNet50+Grad-CAM)│
+   └────────────────────┘ └────────────────────┘  └──────────┬──────────┘
+                                                             ▼
+                                                   ┌────────────────────┐
+                                                   │  Head Segmentation  │
+                                                   │  (U-Net)            │
+                                                   └──────────┬──────────┘
+                                                              ▼
+                                              ┌───────────────────────────┐
+                                              │  Aggregated Predictions   │
+                                              │  → Interactive Dashboard  │
+                                              │  → AI Clinical Report     │
+                                              └───────────────────────────┘
 ```
 
 ---
 
 ##  Model Performance
 
-| Pipeline | Model | Performance |
-|---|---|---|
-| Maternal Risk Prediction | XGBoost | 81.77% Test Accuracy |
-| CTG Fetal Health Analysis | ANN | 82.39% Test Accuracy |
-| Ultrasound Plane Classification | ResNet50 | 93.0% Accuracy |
-| Fetal Head | U-Net | 95.66% IoU |
+| Pipeline | Model | Metric | Result |
+|---|---|---|---|
+| Maternal Risk Prediction | XGBoost | Test Accuracy | **81.77%** |
+| CTG Fetal Health Classification | ANN | Test Accuracy | **~80%** (macro F1: 0.632) |
+| Ultrasound Plane Classification | ResNet50 | Accuracy | **93.0%** |
+| Fetal Head Segmentation | U-Net | IoU | **95.66%** |
 
+> **Engineering note:** the CTG/ANN model's raw accuracy peaked higher, but the initial version recognized only **5.71%** of true Pathological cases — an unacceptable miss rate for a clinical-safety-critical class. Iterative `class_weight` tuning traded a small amount of overall accuracy for a **7× improvement in Pathological recall (5.71% → 40%)**, prioritizing the metric that actually matters in this domain: not missing high-risk cases.
 
 ---
 
-##  Machine Learning Pipelines
+##  Machine Learning & Deep Learning Pipelines
 
 ### 1. Maternal Health Risk Prediction
-
-**Objective:** Predict maternal health risk levels using clinical measurements.
-
+**Objective:** Predict maternal health risk level from clinical vitals.
 **Input Features:** Age, Systolic BP, Diastolic BP, Blood Glucose, Body Temperature, Heart Rate
-
 **Model:** XGBoost Classifier
-
 **Output:** Low Risk / Medium Risk / High Risk
 
----
-
 ### 2. CTG Fetal Health Classification
-
 **Objective:** Classify fetal health status from cardiotocography (CTG) measurements.
-
-**Model:** Artificial Neural Network (ANN)
-
+**Model:** Artificial Neural Network (ANN), tuned for class-imbalance-aware recall on the clinically critical minority class.
 **Output Classes:** Normal / Suspect / Pathological
 
----
-
 ### 3. Ultrasound Anatomical Plane Classification
-
 **Objective:** Identify fetal anatomical planes from ultrasound images.
-
 **Model:** ResNet50 (Transfer Learning)
-
-**Explainability:** Grad-CAM visualization
-
+**Explainability:** Grad-CAM visualization highlights the image regions driving each prediction
 **Supported Planes:** Head / Abdomen / Femur / Other Fetal Planes
 
----
-
 ### 4. Fetal Head Segmentation
-
 **Objective:** Generate pixel-level segmentation masks of fetal head regions.
-
 **Model:** U-Net
-
-**Applications:** Head circumference estimation, Growth monitoring
-
+**Applications:** Head circumference estimation, growth monitoring
 
 ---
 
-##  Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Technologies |
 |---|---|
@@ -182,7 +182,7 @@ FETAL-HEALTH/
 │   ├── best_model.pkl
 │   ├── fetal_health_ann_model.h5
 │   ├── resnet50_fetal_planes.pth
-│   ├── head.pth
+│   └── head.pth
 │
 ├── Notebooks/
 │   ├── MHRP_XGBoost.ipynb
@@ -198,29 +198,43 @@ FETAL-HEALTH/
 │   └── ai_report.png
 │
 └── README.md
-##  Technical Challenges
+```
 
-* Handling heterogeneous healthcare datasets
-* Training multiple ML/DL models under a unified workflow
-* Managing ultrasound image preprocessing
-* Integrating segmentation and classification pipelines
-* Building reusable FastAPI inference services
-* Deploying multiple model types within a single application
+---
+
+##  Technical Challenges & Solutions
+
+| Challenge | How it was addressed |
+|---|---|
+| Heterogeneous healthcare datasets (tabular + time-series + image) | Built separate, purpose-fit pipelines per modality instead of forcing one model architecture |
+| Multiple ML/DL model types in one workflow | Standardized on modular FastAPI inference services, each independently deployable |
+| Severe class imbalance in CTG data (Pathological cases rare) | Iteratively tuned `class_weight` strategies to prioritize recall on the clinically critical class over raw accuracy |
+| Ultrasound image preprocessing at scale | OpenCV-based preprocessing pipeline feeding a ResNet50 transfer-learning model |
+| Model interpretability for clinical trust | Integrated Grad-CAM so predictions are visually explainable, not black-box |
+| Integrating segmentation + classification pipelines | Unified output schema so the frontend renders both under one dashboard |
 
 ---
 
 ##  Future Enhancements
 
-* RAG-powered AI Clinical Assistant
-* Medical guideline retrieval using Vector Databases
-* LangChain-based conversational interface
-* DICOM image support
-* Gestational age estimation
-* Cloud deployment using Docker and Kubernetes
-* Hospital integration via HL7/FHIR standards
+- RAG-powered AI Clinical Assistant for guideline-grounded Q&A
+- Medical guideline retrieval using vector databases
+- LangChain-based conversational interface
+- DICOM image support
+- Gestational age estimation
+- Cloud deployment via Docker + Kubernetes
+- Hospital system integration via HL7/FHIR standards
 
 ---
 
-## 📜 License
+##  License
 
-This project is released under the MIT License.
+Released under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+**Built to demonstrate end-to-end applied AI engineering — from raw clinical data to a production-ready clinical dashboard.**
+
+</div>
