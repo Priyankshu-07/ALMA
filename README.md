@@ -23,8 +23,6 @@ Prenatal care depends on interpreting several independent data sources — mater
 
 Built end-to-end (data pipeline → model training → inference services → production UI), the project demonstrates the full lifecycle of applied AI: from a Kaggle-grade research notebook to a deployable, API-driven web application.
 
-> Originally developed as a capstone project — rated **9.1/10** — and since refined with corrected data pipelines, class-imbalance handling, and clinical-report generation.
-
 ---
 
 ##  Project Highlights
