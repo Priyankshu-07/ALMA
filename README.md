@@ -19,7 +19,7 @@
 
 ##  Overview
 
-Prenatal care depends on interpreting several independent data sources — maternal vitals, fetal heart-rate monitoring, and ultrasound imaging — often across disconnected tools. **This platform unifies all three into a single clinical dashboard**, using four purpose-built ML/DL models to turn raw clinical data into actionable, real-time risk assessments.
+Prenatal care depends on interpreting several independent data sources — maternal vitals, fetal heart-rate monitoring, and ultrasound imaging — often across disconnected tools. **This platform unifies all three into a single clinical dashboard**, using five purpose-built ML, DL, and classical CV pipelines to turn raw clinical data into actionable, real-time risk assessments.
 
 Built end-to-end (data pipeline → model training → inference services → production UI), the project demonstrates the full lifecycle of applied AI: from a Kaggle-grade research notebook to a deployable, API-driven web application.
 
@@ -30,13 +30,14 @@ Built end-to-end (data pipeline → model training → inference services → pr
 ##  Project Highlights
 
 - **Full-stack healthcare AI platform** — Next.js + TypeScript frontend, FastAPI + Python backend
-- **4 independent ML/DL pipelines** unified into one clinical dashboard
+- **5 independent pipelines** — spanning classical ML, deep learning, and classical computer vision — unified into one clinical dashboard
 - **Maternal Risk Prediction** — XGBoost classifier on clinical vitals
 - **CTG Fetal Health Classification** — custom ANN trained on cardiotocography signals, with deliberate class-imbalance tuning for clinical safety
 - **Ultrasound Plane Classification** — ResNet50 (transfer learning) with **Grad-CAM explainability**, so predictions are interpretable, not black-box
 - **Fetal Head Segmentation** — U-Net for pixel-level anatomical structure detection
+- **Femur Length Measurement** — classical OpenCV pipeline (CLAHE + Canny + Hough Line Transform) that geometrically measures femur length from segmented ultrasound frames, no additional model required
 - **Modular FastAPI microservices** for real-time, independently-scalable model inference
-- **AI-generated clinical reports** synthesizing outputs from all four pipelines into one summary
+- **AI-generated clinical reports** synthesizing outputs from all five pipelines into one summary
 
 ---
 
@@ -70,37 +71,40 @@ Prenatal healthcare requires synthesizing multiple, heterogeneous data types —
 
 ##  System Architecture
 
+```mermaid
+flowchart TD
+    A["👤 Clinical User<br/>Vitals · CTG data · Ultrasound scan"] --> B["Frontend — Next.js + TypeScript<br/>Clinical Dashboard UI"]
+    B -- "REST API" --> C["FastAPI Backend<br/>Request routing & I/O"]
+
+    C --> D["Maternal Risk<br/>XGBoost"]
+    C --> E["CTG Analysis<br/>ANN"]
+    C --> F["Ultrasound Plane Classification<br/>ResNet50 + Grad-CAM"]
+
+    F --> G["Head Segmentation<br/>U-Net"]
+    F --> H["Femur Length Measurement<br/>Classical CV: CLAHE → Canny → Hough Line Transform"]
+
+    D --> I["Aggregated Predictions"]
+    E --> I
+    G --> I
+    H --> I
+
+    I --> J["Interactive Clinical Dashboard"]
+    I --> K["AI-Generated Clinical Report"]
+
+    style A fill:#f5f5f5,stroke:#999,color:#111
+    style B fill:#dbeafe,stroke:#3b82f6,color:#111
+    style C fill:#dbeafe,stroke:#3b82f6,color:#111
+    style D fill:#dcfce7,stroke:#22c55e,color:#111
+    style E fill:#dcfce7,stroke:#22c55e,color:#111
+    style F fill:#fef3c7,stroke:#f59e0b,color:#111
+    style G fill:#fef3c7,stroke:#f59e0b,color:#111
+    style H fill:#fce7f3,stroke:#ec4899,color:#111
+    style I fill:#ede9fe,stroke:#8b5cf6,color:#111
+    style J fill:#f5f5f5,stroke:#999,color:#111
+    style K fill:#f5f5f5,stroke:#999,color:#111
 ```
-                     ┌─────────────────────────────┐
-                     │   Frontend (Next.js + TS)   │
-                     │   Clinical Dashboard UI     │
-                     └──────────────┬──────────────┘
-                                    │  REST API
-                                    ▼
-                     ┌─────────────────────────────┐
-                     │      FastAPI Backend        │
-                     │   Request routing & I/O     │
-                     └──────────────┬──────────────┘
-                                    │
-              ┌─────────────────────┼─────────────────────┐
-              ▼                     ▼                     ▼
-   ┌────────────────────┐ ┌────────────────────┐  ┌────────────────────┐
-   │  Maternal Risk     │ │  CTG Analysis      │  │  Ultrasound        │
-   │  (XGBoost)         │ │  (ANN)             │  │  Classification    │
-   │                    │ │                    │  | (ResNet50+Grad-CAM)│
-   └────────────────────┘ └────────────────────┘  └──────────┬──────────┘
-                                                             ▼
-                                                   ┌────────────────────┐
-                                                   │  Head Segmentation  │
-                                                   │  (U-Net)            │
-                                                   └──────────┬──────────┘
-                                                              ▼
-                                              ┌───────────────────────────┐
-                                              │  Aggregated Predictions   │
-                                              │  → Interactive Dashboard  │
-                                              │  → AI Clinical Report     │
-                                              └───────────────────────────┘
-```
+
+> **Femur measurement, unpacked:** once the ResNet50 classifier tags a frame as a "Femur" plane, that frame is routed to a **deterministic OpenCV pipeline** — not a second neural network. CLAHE contrast enhancement + Gaussian blur clean up the ultrasound noise, Canny edge detection finds bone boundaries, and a probabilistic Hough Line Transform isolates the longest valid near-horizontal line (the femur shaft axis, filtered by angle and length bounds). The pixel length is then converted to millimeters via a fixed pixel-spacing calibration constant. It's a deliberate choice: femur length is a well-defined geometric measurement, so a classical CV algorithm gives a fast, deterministic, and fully explainable result — no training data or GPU inference needed for this step.
 
 ---
 
@@ -112,12 +116,13 @@ Prenatal healthcare requires synthesizing multiple, heterogeneous data types —
 | CTG Fetal Health Classification | ANN | Test Accuracy | **~80%** (macro F1: 0.632) |
 | Ultrasound Plane Classification | ResNet50 | Accuracy | **93.0%** |
 | Fetal Head Segmentation | U-Net | IoU | **95.66%** |
+| Femur Length Measurement | Classical CV (OpenCV) | Method | Deterministic geometric measurement — no accuracy metric applies |
 
 > **Engineering note:** the CTG/ANN model's raw accuracy peaked higher, but the initial version recognized only **5.71%** of true Pathological cases — an unacceptable miss rate for a clinical-safety-critical class. Iterative `class_weight` tuning traded a small amount of overall accuracy for a **7× improvement in Pathological recall (5.71% → 40%)**, prioritizing the metric that actually matters in this domain: not missing high-risk cases.
 
 ---
 
-##  Machine Learning & Deep Learning Pipelines
+##  Machine Learning, Deep Learning & Computer Vision Pipelines
 
 ### 1. Maternal Health Risk Prediction
 **Objective:** Predict maternal health risk level from clinical vitals.
@@ -140,6 +145,17 @@ Prenatal healthcare requires synthesizing multiple, heterogeneous data types —
 **Objective:** Generate pixel-level segmentation masks of fetal head regions.
 **Model:** U-Net
 **Applications:** Head circumference estimation, growth monitoring
+
+### 5. Femur Length Measurement
+**Objective:** Measure femur length (FL) from ultrasound frames already classified as the "Femur" plane.
+**Approach:** Classical computer vision, not a trained model. Femur images are first segregated from the U-Net fetal-parts classification dataset, then processed through:
+1. **CLAHE** (Contrast Limited Adaptive Histogram Equalization) to enhance bone contrast against ultrasound noise
+2. **Gaussian blur** to suppress speckle noise
+3. **Canny edge detection** to extract bone boundaries
+4. **Probabilistic Hough Line Transform** to detect candidate line segments, filtered by angle (rejecting near-vertical lines) and length bounds to isolate the true femur shaft axis
+5. **Pixel-to-mm conversion** via a fixed pixel-spacing calibration constant to output the final `FL_mm`
+
+**Why classical CV instead of another model:** femur length is a well-defined geometric measurement once the bone is visible — a deterministic algorithm is faster, fully explainable, and needs no additional labeled training data, unlike a learned segmentation or regression model.
 
 ---
 
@@ -212,6 +228,7 @@ FETAL-HEALTH/
 | Ultrasound image preprocessing at scale | OpenCV-based preprocessing pipeline feeding a ResNet50 transfer-learning model |
 | Model interpretability for clinical trust | Integrated Grad-CAM so predictions are visually explainable, not black-box |
 | Integrating segmentation + classification pipelines | Unified output schema so the frontend renders both under one dashboard |
+| Measuring femur length without a dedicated regression model | Segregated femur frames from the classification dataset and built a classical OpenCV pipeline (CLAHE → Canny → Hough Line Transform) with angle/length filtering to isolate the correct bone-axis line |
 
 ---
 
