@@ -102,6 +102,12 @@ flowchart TD
     style K fill:#f5f5f5,stroke:#999,color:#111
 ```
 
+
+[![Architecture diagram](https://gitdiagram.com/diagram-badge.svg)](https://gitdiagram.com/priyankshu-07/alma?utm_source=readme&utm_medium=badge)
+
+
+
+
 > **Femur measurement, unpacked:** once the ResNet50 classifier tags a frame as a "Femur" plane, that frame is routed to a **deterministic OpenCV pipeline** — not a second neural network. CLAHE contrast enhancement + Gaussian blur clean up the ultrasound noise, Canny edge detection finds bone boundaries, and a probabilistic Hough Line Transform isolates the longest valid near-horizontal line (the femur shaft axis, filtered by angle and length bounds). The pixel length is then converted to millimeters via a fixed pixel-spacing calibration constant. It's a deliberate choice: femur length is a well-defined geometric measurement, so a classical CV algorithm gives a fast, deterministic, and fully explainable result — no training data or GPU inference needed for this step.
 
 ---
